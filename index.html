@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="theme-color" content="#0f1115">
 <style>
-/* Compact-first, tuned for small fonts and tight presets */
+/* Compact-first + dense presets + keyboard-safe bottom UI */
 :root{
   --header-h: 52px;
   --search-h: 56px;
@@ -21,11 +21,15 @@
   --kb: 0px; /* dynamic keyboard lift */
   --font-scale: 1; /* adjustable in Settings */
 }
+
 html,body{height:100%}
 body{
-  margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  font-size: calc(14px*var(--font-scale)); line-height:1.25;
-  background:#0f1115; color:#e8eaed; -webkit-tap-highlight-color:transparent;
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  font-size: calc(14px*var(--font-scale));
+  line-height:1.25;
+  background:#0f1115; color:#e8eaed;
+  -webkit-tap-highlight-color:transparent;
 }
 body.light{background:#f7f7f9;color:#111318}
 button,input,select,textarea{font-size:inherit;color:inherit}
@@ -44,7 +48,8 @@ body.light .header{background:rgba(255,255,255,.9);border-bottom:1px solid rgba(
 .icon-btn{
   min-width:36px; height:36px; border-radius:10px;
   border:1px solid rgba(255,255,255,.08);
-  background:rgba(255,255,255,.04); color:inherit; display:inline-flex; align-items:center; justify-content:center; padding:0 8px
+  background:rgba(255,255,255,.04); color:inherit;
+  display:inline-flex; align-items:center; justify-content:center; padding:0 8px
 }
 body.light .icon-btn{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.08)}
 .icon-btn:active{transform:translateY(1px) scale(.98)}
@@ -66,15 +71,15 @@ body.light .card{background:#fff; border-color:rgba(0,0,0,.06)}
 .sep{opacity:.5; padding:0 4px}
 .row-icons{display:inline-flex; gap:4px}
 
-/* Meta row: sell left, bought right, no labels */
+/* Meta row: Sell left, Bought right, one pencil edits both */
 .meta{
   display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:2px
 }
 .meta .sell, .meta .buy{
-  display:inline-flex; align-items:center; gap:6px; opacity:.85
+  display:inline-flex; align-items:center; gap:6px; opacity:.9
 }
 .meta .sell{order:1;font-size:.9rem}
-.meta .buy{order:2;font-size:.8rem;opacity:.75}
+.meta .buy{order:2;font-size:.45rem;opacity:.75} /* half of .9rem */
 .meta .one-edit{margin-left:auto}
 
 /* Buttons small */
@@ -88,15 +93,18 @@ body.light .small-btn{background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.08)}
 /* Dropdown */
 .dropdown{margin-top:8px; border-radius:var(--radius-sm); background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); padding:6px}
 body.light .dropdown{background:rgba(0,0,0,.03); border-color:rgba(0,0,0,.08)}
-.dropdown .bar{display:flex; align-items:center; gap:6px}
+.dropdown .bar{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+
+/* Toggle (icons only) */
 .toggle-type{
   border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.06);
-  color:inherit; border-radius:9px; padding:6px 8px; display:inline-flex; align-items:center; gap:6px
+  color:inherit; border-radius:9px; padding:6px 8px;
+  display:inline-flex; align-items:center; gap:6px
 }
 body.light .toggle-type{background:rgba(0,0,0,.05); border-color:rgba(0,0,0,.08)}
 .toggle-type .only{font-size:1rem}
 
-/* Preset row (compact) with fixed readable contrast */
+/* Preset row (compact) */
 .preset-row{display:flex; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:thin; padding:2px 0; flex:1}
 .preset{
   min-width:68px; max-width:92px; flex:0 0 auto;
@@ -109,18 +117,38 @@ body.light .preset{background:#f4f6f9; border-color:rgba(0,0,0,.08)}
 .preset.add{min-width:48px; display:inline-flex; align-items:center; justify-content:center; background:transparent; border-style:dashed}
 .preset .edit{position:absolute; top:2px; right:2px; background:transparent; border:none; color:inherit; opacity:.7; font-size:.8rem}
 
-/* Search bar (always bottom) */
-.search-wrap{position:fixed; left:0; right:0; height:var(--search-h); padding:6px var(--pad); display:flex; align-items:center; z-index:11}
+/* Mini converter row within dropdown */
+.conv{
+  display:flex; align-items:center; gap:6px; flex-wrap:nowrap
+}
+.conv .input{
+  display:flex; flex-direction:column; gap:4px; min-width:90px
+}
+.conv input{
+  border-radius:9px; border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.05); color:inherit; padding:6px 8px; width:100%
+}
+body.light .conv input{background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.1)}
+.mini-total{
+  margin-left:auto; font-weight:800; display:flex; align-items:center; gap:8px
+}
+.mini-total .val{font-size:1.05rem}
+.mini-total .val .dec{font-size:.6em; opacity:.9}
+.mini-actions{display:inline-flex; gap:6px}
+.mini-actions .add{opacity:.6}
+.mini-actions .add.enabled{opacity:1}
+
+/* Search bar (always bottom; moves with keyboard) */
+.search-wrap{position:fixed; left:0; right:0; height:var(--search-h); padding:6px var(--pad); display:flex; align-items:center; z-index:11; bottom: calc(env(safe-area-inset-bottom) + var(--kb));}
 .search-inner{max-width:800px; margin:0 auto; display:flex; gap:6px; width:100%}
 .search{flex:1; display:flex; gap:6px; align-items:center; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:10px; padding:6px 8px}
 body.light .search{background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.08)}
 .search input{flex:1; border:none; outline:none; background:transparent; color:inherit}
-.search-wrap{bottom: calc(env(safe-area-inset-bottom) + var(--kb));}
 
-/* FAB (lifts above keyboard) */
+/* FAB (also lifts) */
 .fab{position:fixed; right:16px; bottom: calc(16px + env(safe-area-inset-bottom) + var(--kb)); height:52px; width:52px; border-radius:50%; background:linear-gradient(180deg, var(--accent), #2ab8ff); color:#001018; border:none; box-shadow:var(--shadow); font-weight:800; z-index:12}
 
-/* Modals + forms (unchanged basics) */
+/* Modals + forms */
 .modal{position:fixed; inset:0; display:none; align-items:flex-end; justify-content:center; z-index:50}
 .modal.open{display:flex}
 .backdrop{position:absolute; inset:0; background:rgba(0,0,0,.45); backdrop-filter:blur(4px)}
@@ -142,16 +170,22 @@ body.light .input input, body.light .input textarea, body.light .input select{ba
 .divider{height:1px; background:rgba(255,255,255,.08); margin:6px 0}
 .small-muted{font-size:.75rem; opacity:.75}
 
-/* Calculator table (unchanged) */
-.calc-table{display:grid; grid-template-columns:1fr .8fr .8fr 36px; gap:6px; align-items:center}
-.calc-row{display:contents}
-.calc-total{position:sticky; bottom:0; padding:8px 0 6px; background:inherit; display:flex; align-items:center; justify-content:space-between; border-top:1px solid rgba(255,255,255,.1)}
+/* Calculator modal: sticky total at top, “C” clears all, Save → bills */
+.calc-head{position:sticky; top:0; background:inherit; padding:6px 0; display:flex; align-items:center; gap:8px; border-bottom:1px solid rgba(255,255,255,.1)}
+.calc-title{font-weight:800}
+.calc-title .clearC{margin-left:6px; border:1px solid rgba(255,255,255,.15); border-radius:6px; padding:2px 6px; background:transparent; color:inherit}
+.calc-total{margin-left:auto; font-weight:800}
+.calc-total .dec{font-size:.6em; opacity:.9}
+
+/* Bill history list */
+.bill-list .row{display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.08)}
 </style>
 </head>
 <body class="dark">
   <header class="header">
     <div class="title">The List</div>
     <div class="actions">
+      <button class="icon-btn" id="billBtn" title="Bill history"><span class="only">🧾</span></button>
       <button class="icon-btn" id="settingsBtn" title="Settings"><span class="only">⚙️</span></button>
       <button class="icon-btn" id="themeBtn" title="Theme"><span class="only">🌙</span></button>
       <button class="icon-btn" id="recordsHeaderBtn" title="Recent"><span class="only">🕘</span></button>
@@ -166,18 +200,18 @@ body.light .input input, body.light .input textarea, body.light .input select{ba
 
   <button id="fab" class="fab" title="Add">＋</button>
 
-  <!-- Search bar (always bottom) -->
+  <!-- Search bar (always bottom, lifts with keyboard) -->
   <div id="searchWrap" class="search-wrap" aria-label="Search bar">
     <div class="search-inner">
       <div class="search" style="flex:1">
         <span>🔎</span>
-        <input id="searchInput" type="text" placeholder="Search prefix in any name…" autocapitalize="none" autocomplete="off" spellcheck="false">
+        <input id="searchInput" type="text" placeholder="Search any part of name…" autocapitalize="none" autocomplete="off" spellcheck="false">
         <button id="clearSearchBtn" class="icon-btn" style="min-width:30px;height:30px">✕</button>
       </div>
     </div>
   </div>
 
-  <!-- Item Modal (one pencil edits both prices) -->
+  <!-- Item Modal (one pencil edits both prices + names) -->
   <div class="modal" id="itemModal" role="dialog" aria-modal="true">
     <div class="backdrop" data-close="itemModal"></div>
     <div class="sheet">
@@ -248,7 +282,7 @@ body.light .input input, body.light .input textarea, body.light .input select{ba
     </div>
   </div>
 
-  <!-- Recent Searches/Items Modal -->
+  <!-- Recent Modal -->
   <div class="modal" id="recordsModal" role="dialog" aria-modal="true">
     <div class="backdrop" data-close="recordsModal"></div>
     <div class="sheet">
@@ -267,46 +301,35 @@ body.light .input input, body.light .input textarea, body.light .input select{ba
     </div>
   </div>
 
-  <!-- Calculator Modal (multi-item) -->
+  <!-- Calculator Modal (results + total + Save + “C”) -->
   <div class="modal" id="calcModal" role="dialog" aria-modal="true">
     <div class="backdrop" data-close="calcModal"></div>
     <div class="sheet">
       <div class="handle"></div>
-      <div class="header-row">
-        <div class="small-muted">Calculator</div>
-        <button class="small-btn" data-close="calcModal">✕</button>
-      </div>
+
       <div class="content">
-        <div class="calc-table" style="font-weight:700; opacity:.85; margin-bottom:4px"><div>Item</div><div>Weight (g)</div><div>Price (₹)</div><div></div></div>
-        <div id="calcTable"></div>
-        <button class="btn alt" id="addCalcRowBtn" style="margin-top:6px">+ Add item</button>
-        <div class="calc-total">
-          <div class="small-muted">Weight @ sprice + direct ₹ add up.</div>
-          <div><span class="small-muted">Total:</span> <strong id="calcTotal">₹0.00</strong></div>
+        <div class="calc-head">
+          <div class="calc-title">Calculator <button class="clearC" id="clearBillBtn" title="Clear bill">C</button></div>
+          <div style="margin-left:8px"><button class="btn alt" id="saveBillBtn" title="Save receipt">Save bill</button></div>
+          <div class="calc-total" id="mainTotalTop">₹0<span class="dec">.00</span></div>
+          <button class="small-btn" data-close="calcModal" title="Close" style="margin-left:8px">✕</button>
         </div>
+
+        <div id="calcList"></div>
       </div>
     </div>
   </div>
 
-  <!-- Quick Convert Modal (per-item) -->
-  <div class="modal" id="convertModal" role="dialog" aria-modal="true">
-    <div class="backdrop" data-close="convertModal"></div>
+  <!-- Bill History Modal -->
+  <div class="modal" id="billModal" role="dialog" aria-modal="true">
+    <div class="backdrop" data-close="billModal"></div>
     <div class="sheet">
       <div class="handle"></div>
       <div class="header-row">
-        <div class="small-muted">Quick convert</div>
-        <button class="small-btn" data-close="convertModal">✕</button>
+        <div class="small-muted">Bill history</div>
+        <button class="small-btn" data-close="billModal">✕</button>
       </div>
-      <div class="content">
-        <div class="form-grid">
-          <div class="input"><label for="convGrams">Grams</label><input id="convGrams" type="number" inputmode="decimal" min="0" step="0.01"></div>
-          <div class="input"><label for="convPrice">Price (₹)</label><input id="convPrice" type="number" inputmode="decimal" min="0" step="0.01"></div>
-        </div>
-        <div class="small-muted" id="convInfo" style="margin-top:6px"></div>
-        <div style="display:flex; gap:6px; justify-content:flex-end; margin-top:8px">
-          <button type="button" class="btn alt" data-close="convertModal">Close</button>
-        </div>
-      </div>
+      <div class="content bill-list" id="billList"></div>
     </div>
   </div>
 
@@ -328,6 +351,10 @@ body.light .input input, body.light .input textarea, body.light .input select{ba
           <label for="accentPick">Accent color</label>
           <input id="accentPick" type="color">
         </div>
+        <div class="input">
+          <label for="lineCap">Max calculator lines</label>
+          <input id="lineCap" type="number" min="10" step="10">
+        </div>
         <div style="display:flex; gap:6px; justify-content:flex-end; margin-top:8px">
           <button type="button" class="btn alt" data-close="settingsModal">Close</button>
           <button type="button" class="btn primary" id="saveSettingsBtn">Save</button>
@@ -337,7 +364,7 @@ body.light .input input, body.light .input textarea, body.light .input select{ba
   </div>
 
 <script>
-/* IndexedDB K/V */
+/* ===== IndexedDB K/V ===== */
 const idb = (() => {
   const DB = 'the-list-db', STORE = 'kv';
   let dbp = null;
@@ -347,36 +374,43 @@ const idb = (() => {
       r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
     }); return dbp;
   }
-  async function get(key){ const db=await open(); return new Promise((res,rej)=>{ const tx=db.transaction(STORE,'readonly'); const st=tx.objectStore(STORE); const rq=st.get(key); rq.onsuccess=()=>res(rq.result); rq.onerror=()=>rej(rq.error); });}
-  async function set(key,val){ const db=await open(); return new Promise((res,rej)=>{ const tx=db.transaction(STORE,'readwrite'); const st=tx.objectStore(STORE); const rq=st.put(val,key); rq.onsuccess=()=>res(); rq.onerror=()=>rej(rq.error); });}
+  async function get(key){ const db=await open(); return new Promise((res,rej)=>{ const tx=db.transaction(STORE,'readonly'); const st=tx.objectStore(STORE); const rq=st.get(key); rq.onsuccess=()=>res(rq.result); rq.onerror=()=>rej(r.error); });}
+  async function set(key,val){ const db=await open(); return new Promise((res,rej)=>{ const tx=db.transaction(STORE,'readwrite'); const st=tx.objectStore(STORE); const rq=st.put(val,key); rq.onsuccess=()=>res(); rq.onerror=()=>rej(r.error); });}
   return {get,set};
 })();
 
-/* State + defaults */
+/* ===== State + defaults ===== */
 const defaultWeightPresets = [{val:"50",label:"50g"},{val:"100",label:"100g"},{val:"500",label:"500g"},{val:"1000",label:"1kg"}];
 const defaultPricePresets  = [{val:"10",label:"₹10"},{val:"30",label:"₹30"},{val:"50",label:"₹50"}];
+
 const state = {
   items: [],
-  recentSearches: [],             // strings
-  recentItems: [],                // item ids (dedup, MRU)
-  ui: { theme:'dark', activeDropdownItemId:null, dropdownType:'weight' },
-  calcRows: [],
-  settings: { fontScale: 1, accent: '#59d1ff' }
+  recentSearches: [],
+  recentItems: [],
+  ui: {
+    theme:'dark',
+    activeDropdownItemId:null,
+    dropdownType:'weight',
+    mini: { itemId:null, amount:0, gramsInput:'', priceInput:'' }
+  },
+  calc: { lines: [], total: 0 },
+  bills: [], // {id, ts, lines:[{itemName, grams, price, lineTotal}], total}
+  settings: { fontScale:1, accent:'#59d1ff', lineCap:50 }
 };
 
-/* Elements */
+/* ===== Elements ===== */
 const listEl = document.getElementById('list');
 const emptyEl = document.getElementById('emptyState');
 const themeBtn = document.getElementById('themeBtn');
 const settingsBtn = document.getElementById('settingsBtn');
 const recordsHeaderBtn = document.getElementById('recordsHeaderBtn');
+const billBtn = document.getElementById('billBtn');
 const calcBtn = document.getElementById('calcBtn');
 const fab = document.getElementById('fab');
-const searchWrap = document.getElementById('searchWrap');
 const searchInput = document.getElementById('searchInput');
 const clearSearchBtn = document.getElementById('clearSearchBtn');
 
-/* Modals / forms */
+/* Modals + forms */
 const itemModal = document.getElementById('itemModal');
 const itemForm = document.getElementById('itemForm');
 const itemModalTitle = document.getElementById('itemModalTitle');
@@ -394,55 +428,67 @@ const presetValLabel = document.getElementById('presetValLabel');
 const overrideWrap = document.getElementById('overrideWrap');
 const overrideLabel = document.getElementById('overrideLabel');
 const overrideVal = document.getElementById('overrideVal');
-const presetModalTitle = document.getElementById('presetModalTitle');
-
-const notesModal = document.getElementById('notesModal');
-const notesText = document.getElementById('notesText');
 
 const recordsModal = document.getElementById('recordsModal');
 const recordsList = document.getElementById('recordsList');
 const clearRecordsBtn = document.getElementById('clearRecordsBtn');
 
 const calcModal = document.getElementById('calcModal');
-const calcTable = document.getElementById('calcTable');
-const addCalcRowBtn = document.getElementById('addCalcRowBtn');
-const calcTotalEl = document.getElementById('calcTotal');
+const calcList = document.getElementById('calcList');
+const mainTotalTop = document.getElementById('mainTotalTop');
+const clearBillBtn = document.getElementById('clearBillBtn');
+const saveBillBtn = document.getElementById('saveBillBtn');
 
-const convertModal = document.getElementById('convertModal');
-const convGrams = document.getElementById('convGrams');
-const convPrice = document.getElementById('convPrice');
-const convInfo = document.getElementById('convInfo');
+const billModal = document.getElementById('billModal');
+const billList = document.getElementById('billList');
 
 const settingsModal = document.getElementById('settingsModal');
 const fontScale = document.getElementById('fontScale');
 const accentPick = document.getElementById('accentPick');
+const lineCap = document.getElementById('lineCap');
 
-/* Helpers */
+/* ===== Helpers ===== */
 const byId = id => state.items.find(i=>i.id===id);
 const genId = () => Math.random().toString(36).slice(2)+Date.now().toString(36);
-const formatPrice = n => `₹${(Number(n)||0).toFixed(2)}`;
-const formatGrams = g => `${(Number(g)||0).toFixed(1)}g`;
+const clamp = (n,min,max)=>Math.max(min,Math.min(max,n));
 const escapeHtml = s => String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-/* Persistence */
+/* Rounded-rupee rule: floor unless fractional >= 0.9 then ceil */
+function rupeeRound(x){
+  const f = x - Math.floor(x);
+  return (f >= 0.9) ? Math.ceil(x) : Math.floor(x);
+}
+/* format main/mini with small decimals */
+function fmtMain(n){
+  const v = (Number(n)||0).toFixed(2);
+  const [a,b] = v.split('.');
+  return `₹${a}<span class="dec">.${b}</span>`;
+}
+
+/* ===== Persistence ===== */
 async function loadAll(){
-  const [items,recent,recentItems,theme,settings] = await Promise.all([
-    idb.get('items'), idb.get('recent'), idb.get('recentItems'), idb.get('theme'), idb.get('settings')
+  const [items,recent,recentItems,theme,settings,calc,bills] = await Promise.all([
+    idb.get('items'), idb.get('recent'), idb.get('recentItems'),
+    idb.get('theme'), idb.get('settings'), idb.get('calc'), idb.get('bills')
   ]);
   state.items = Array.isArray(items)? items : [];
   state.recentSearches = Array.isArray(recent)? recent : [];
   state.recentItems = Array.isArray(recentItems)? recentItems : [];
   if(theme==='light'||theme==='dark') state.ui.theme = theme;
   if(settings) state.settings = Object.assign(state.settings, settings);
-  applyTheme(); applySettings(); renderList(); renderRecords();
+  if(calc && Array.isArray(calc.lines)) { state.calc = calc; }
+  if(Array.isArray(bills)) state.bills = bills.slice(0,20);
+  applyTheme(); applySettings(); renderList(); renderRecords(); renderCalc(); renderBills();
 }
 const saveItems = () => idb.set('items', state.items);
 const saveRecent = () => idb.set('recent', state.recentSearches);
 const saveRecentItems = () => idb.set('recentItems', state.recentItems);
 const saveTheme = () => idb.set('theme', state.ui.theme);
 const saveSettings = () => idb.set('settings', state.settings);
+const saveCalc = () => idb.set('calc', state.calc);
+const saveBills = () => idb.set('bills', state.bills.slice(0,20));
 
-/* Theme + Settings */
+/* ===== Theme + Settings ===== */
 function applyTheme(){
   document.body.classList.toggle('light', state.ui.theme==='light');
   document.body.classList.toggle('dark', state.ui.theme==='dark');
@@ -457,15 +503,17 @@ function applySettings(){
 settingsBtn.addEventListener('click', ()=>{
   fontScale.value = state.settings.fontScale;
   accentPick.value = state.settings.accent;
+  lineCap.value = state.settings.lineCap;
   openModal('settingsModal');
 });
 document.getElementById('saveSettingsBtn').addEventListener('click', ()=>{
   state.settings.fontScale = +fontScale.value || 1;
   state.settings.accent = accentPick.value || '#59d1ff';
+  state.settings.lineCap = clamp(parseInt(lineCap.value,10)||50, 10, 500);
   applySettings(); saveSettings(); closeModal('settingsModal');
 });
 
-/* Bottom bar + FAB: lift above keyboard (VisualViewport / VirtualKeyboard) */
+/* ===== Keyboard lift (VisualViewport + VirtualKeyboard) ===== */
 (function setupKeyboardLift(){
   function setKb(px){ document.documentElement.style.setProperty('--kb', Math.max(0, px)+'px'); }
   if ('virtualKeyboard' in navigator) {
@@ -482,13 +530,13 @@ document.getElementById('saveSettingsBtn').addEventListener('click', ()=>{
   }
 })();
 
-/* Modals */
+/* ===== Modals ===== */
 function openModal(id){ const el=document.getElementById(id); if(el) el.classList.add('open'); }
 function closeModal(id){ const el=document.getElementById(id); if(el) el.classList.remove('open'); }
 document.addEventListener('click', e=>{ const c=e.target.getAttribute('data-close'); if(c) closeModal(c); if(e.target.classList.contains('backdrop')){ const id=e.target.getAttribute('data-close'); if(id) closeModal(id);} });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ const open=[...document.querySelectorAll('.modal.open')]; if(open.length) open.at(-1).classList.remove('open'); }});
 
-/* Search (always bottom) with contains-match and recent item logging */
+/* ===== Search (contains match) ===== */
 function getQuery(){ return (searchInput.value||'').trim().toLowerCase(); }
 searchInput.addEventListener('input', ()=>{
   const q=getQuery(); if(q){ state.recentSearches=[q, ...state.recentSearches.filter(x=>x!==q)].slice(0,15); saveRecent(); }
@@ -496,10 +544,9 @@ searchInput.addEventListener('input', ()=>{
 });
 clearSearchBtn.addEventListener('click', ()=>{ searchInput.value=''; renderList(); searchInput.focus(); });
 
-/* Records icon in header */
-document.getElementById('recordsHeaderBtn').addEventListener('click', ()=> openModal('recordsModal'));
+recordsHeaderBtn.addEventListener('click', ()=> openModal('recordsModal'));
 
-/* Add item (FAB) */
+/* ===== Add item ===== */
 fab.addEventListener('click', startAddItem);
 function startAddItem(){
   state.ui.editingItemId = null; itemModalTitle.textContent='Add item'; deleteItemBtn.style.display='none';
@@ -532,16 +579,16 @@ deleteItemBtn.addEventListener('click', async ()=>{
   }
 });
 
-/* Notes */
+/* ===== Notes ===== */
 let editingNotesItemId=null;
 function startEditNotes(id){ const it=byId(id); if(!it) return; editingNotesItemId=id; document.getElementById('notesText').value=it.notes||''; openModal('notesModal');}
 document.getElementById('saveNotesBtn').addEventListener('click', async ()=>{ const it=byId(editingNotesItemId); if(it){ it.notes = document.getElementById('notesText').value; await saveItems(); } closeModal('notesModal'); });
 
-/* Presets with manual override support */
+/* ===== Preset edit with override ===== */
 function startEditPreset({itemId,type,presetIndex}){
   const it=byId(itemId); if(!it) return;
   state.ui.editingPreset={itemId,type,presetIndex};
-  presetModalTitle.textContent = (presetIndex===-1?'Add ':'Edit ') + (type==='weight'?'weight':'price') + ' preset';
+  document.getElementById('presetModalTitle').textContent = (presetIndex===-1?'Add ':'Edit ') + (type==='weight'?'weight':'price') + ' preset';
   const p = presetIndex===-1? null : it.presets[type][presetIndex];
   presetVal.value = p?.val ?? '';
   if(type==='weight'){ presetValLabel.textContent='Grams (g)'; overrideLabel.textContent='Override price ₹ (optional)'; }
@@ -566,23 +613,20 @@ presetForm.addEventListener('submit', async (e)=>{
   await saveItems(); closeModal('presetModal'); state.ui.editingPreset=null; renderList();
 });
 
-/* Long press delete preset */
-function attachLongPress(el,onLong){
-  let t=null; el.addEventListener('pointerdown', e=>{ if(e.button!==0) return; t=setTimeout(()=>onLong(e),520); });
-  ['pointerup','pointerleave','pointercancel'].forEach(ev=> el.addEventListener(ev, ()=>{ if(t){clearTimeout(t); t=null;} }));
-  el.addEventListener('contextmenu', e=>{ e.preventDefault(); onLong(e); });
+/* ===== Records (recent searches + items MRU) ===== */
+function bumpRecentItem(id){
+  state.recentItems = [id, ...state.recentItems.filter(x=>x!==id)].slice(0,15);
+  saveRecentItems();
 }
-
-/* Records render (recent searches + recent items) */
 function renderRecords(){
   recordsList.innerHTML='';
   const s = state.recentSearches.map(q=>({type:'search',label:q}));
   const its = state.recentItems.map(id=>{ const it=byId(id); return it? {type:'item', id, label:`${it.name1} / ${it.name2} / ${it.name3}`} : null; }).filter(Boolean);
-  const rows = [...its, ...s]; // show items first, then searches
+  const rows = [...its, ...s];
   if(!rows.length){ recordsList.innerHTML='<div class="small-muted" style="text-align:center;padding:10px 0">No recent</div>'; return; }
   rows.forEach(r=>{
     const row=document.createElement('div');
-    row.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08)';
+    row.className='row'; row.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08)';
     if(r.type==='item'){
       row.innerHTML=`<div>${escapeHtml(r.label)}</div><div style="display:flex;gap:6px"><button class="small-btn" data-openitem="${r.id}">Open</button><button class="small-btn" data-delitemrec="${r.id}">✕</button></div>`;
     } else {
@@ -598,170 +642,409 @@ recordsModal.addEventListener('click', async e=>{
   const delItem=e.target.getAttribute('data-delitemrec');
   if(use){ searchInput.value=use; renderList(); closeModal('recordsModal'); searchInput.focus(); }
   if(del){ state.recentSearches=state.recentSearches.filter(x=>x!==del); await saveRecent(); renderRecords(); }
-  if(openItem){ state.ui.activeDropdownItemId=openItem; bumpRecentItem(openItem); renderList(); closeModal('recordsModal'); }
+  if(openItem){ state.ui.activeDropdownItemId=openItem; state.ui.mini = {itemId:openItem, amount:0, gramsInput:'', priceInput:''}; bumpRecentItem(openItem); renderList(); closeModal('recordsModal'); }
   if(delItem){ state.recentItems=state.recentItems.filter(x=>x!==delItem); await saveRecentItems(); renderRecords(); }
 });
 document.getElementById('clearRecordsBtn').addEventListener('click', async ()=>{ if(state.recentSearches.length||state.recentItems.length){ if(confirm('Clear all recent?')){ state.recentSearches=[]; state.recentItems=[]; await saveRecent(); await saveRecentItems(); renderRecords(); }}});
-function bumpRecentItem(id){
-  state.recentItems = [id, ...state.recentItems.filter(x=>x!==id)].slice(0,15);
-  saveRecentItems();
-}
 
-/* Calculator */
-function addCalcRow(init){ const row={id:genId(), itemId:state.items?.id||null, weight:0, price:0, ...(init||{})}; state.calcRows.push(row); renderCalc(); }
+/* ===== Calculator (main bill) ===== */
 function renderCalc(){
-  calcTable.innerHTML=''; const frag=document.createDocumentFragment();
-  state.calcRows.forEach(r=>{
-    const row=document.createElement('div'); row.className='calc-row';
-    const opts=state.items.map(it=>`<option value="${it.id}" ${it.id===r.itemId?'selected':''}>${escapeHtml(it.name1)} / ${escapeHtml(it.name2)} / ${escapeHtml(it.name3)}</option>`).join('');
-    row.innerHTML = `
-      <div class="input"><select data-calcs="item" data-id="${r.id}">${opts}</select></div>
-      <div class="input"><input data-calcs="weight" data-id="${r.id}" type="number" inputmode="decimal" placeholder="g" value="${r.weight||''}"></div>
-      <div class="input"><input data-calcs="price" data-id="${r.id}" type="number" inputmode="decimal" placeholder="₹" value="${r.price||''}"></div>
-      <div><button class="small-btn" data-calcs="del" data-id="${r.id}">✕</button></div>`;
+  // compute total from lines
+  let total = 0;
+  calcList.innerHTML='';
+  const frag = document.createDocumentFragment();
+
+  state.calc.lines.forEach((ln, idx)=>{
+    total += ln.lineTotal; // already rupee-rounded
+    const row=document.createElement('div');
+    row.className='row'; row.style.cssText='display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);padding:8px 0;gap:8px';
+    const left=`<div style="flex:1;min-width:0">
+      <div style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(ln.itemName)}</div>
+      <div class="small-muted">${ln.grams? (ln.grams+'g') : ''} ${ln.grams&&ln.price? '•' : ''} ${ln.price? ('₹'+ln.price) : ''}</div>
+    </div>`;
+    const right=`<div style="display:flex;align-items:center;gap:8px">
+      <div>${fmtMain(ln.lineTotal)}</div>
+      <button class="small-btn" data-del-line="${idx}">✕</button>
+    </div>`;
+    row.innerHTML = left + right;
     frag.appendChild(row);
-  }); calcTable.appendChild(frag); updateCalcTotal();
+  });
+  state.calc.total = total;
+  calcList.appendChild(frag);
+  mainTotalTop.innerHTML = fmtMain(total);
+  saveCalc();
 }
-function updateCalcTotal(){
-  let total=0; state.calcRows.forEach(r=>{ const it=byId(r.itemId); const sp=it? Number(it.sprice)||0 : 0; const w=Number(r.weight)||0; const p=Number(r.price)||0; if(w>0) total += (w/1000)*sp; if(p>0) total += p; });
-  calcTotalEl.textContent = formatPrice(total);
-}
-document.getElementById('addCalcRowBtn').addEventListener('click', ()=>addCalcRow());
-calcTable.addEventListener('input', e=>{
-  const id=e.target.getAttribute('data-id'); const key=e.target.getAttribute('data-calcs'); const row=state.calcRows.find(r=>r.id===id); if(!row) return;
-  if(key==='item') row.itemId=e.target.value; if(key==='weight') row.weight=parseFloat(e.target.value)||0; if(key==='price') row.price=parseFloat(e.target.value)||0; updateCalcTotal();
-});
-calcBtn.addEventListener('click', ()=>{ if(!state.calcRows.length) addCalcRow(); openModal('calcModal'); });
-
-/* Quick convert (per-item) */
-let convertItemId=null;
-function openConvert(itemId){
-  convertItemId=itemId; const it=byId(itemId); if(!it) return;
-  convGrams.value=''; convPrice.value=''; convInfo.textContent=`@ ${formatPrice(it.sprice)}/kg`;
-  openModal('convertModal');
-}
-function syncConvert(from){
-  const it = byId(convertItemId); if(!it) return;
-  const sp = Number(it.sprice)||0;
-  if(from==='g'){
-    const g = Number(convGrams.value)||0; convPrice.value = sp>0? (sp*(g/1000)).toFixed(2) : '';
-  } else {
-    const p = Number(convPrice.value)||0; convGrams.value = sp>0? (p/sp*1000).toFixed(1) : '';
+calcList.addEventListener('click', (e)=>{
+  const del = e.target.getAttribute('data-del-line');
+  if(del!=null){
+    state.calc.lines.splice(parseInt(del,10),1);
+    renderCalc();
   }
-}
-convGrams.addEventListener('input', ()=>syncConvert('g'));
-convPrice.addEventListener('input', ()=>syncConvert('p'));
+});
+clearBillBtn.addEventListener('click', ()=>{
+  if(state.calc.lines.length===0) return;
+  if(confirm('Clear the current bill?')){
+    state.calc.lines = [];
+    renderCalc();
+  }
+});
+saveBillBtn.addEventListener('click', ()=>{
+  if(state.calc.lines.length===0) { alert('Nothing to save.'); return; }
+  const receipt = { id:genId(), ts: Date.now(), lines: JSON.parse(JSON.stringify(state.calc.lines)), total: state.calc.total };
+  state.bills.unshift(receipt);
+  state.bills = state.bills.slice(0,20);
+  saveBills();
+  // Clear current bill after save
+  state.calc.lines = [];
+  renderCalc();
+  alert('Saved to Bill history.');
+});
 
-/* Price helpers for presets (with overrides) */
-function priceFromWeightPreset(item, gramsStr, overridePrice) {
-  if (typeof overridePrice === 'number') return formatPrice(overridePrice);
-  const grams = Number(gramsStr) || 0;
-  const sp = Number(item.sprice) || 0;
-  const amount = sp * (grams / 1000);
-  return isFinite(amount) ? formatPrice(amount) : '—';
+/* Bill history UI */
+function renderBills(){
+  billList.innerHTML='';
+  if(!state.bills.length){ billList.innerHTML='<div class="small-muted" style="text-align:center;padding:10px 0">No bills yet</div>'; return; }
+  state.bills.forEach((b, i)=>{
+    const d=new Date(b.ts);
+    const row=document.createElement('div'); row.className='row';
+    row.innerHTML = `<div>
+        <div style="font-weight:600">${d.toLocaleString()}</div>
+        <div class="small-muted">${b.lines.length} items</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div>${fmtMain(b.total)}</div>
+        <button class="small-btn" data-view-bill="${i}">👁️</button>
+        <button class="small-btn" data-del-bill="${i}">✕</button>
+      </div>`;
+    billList.appendChild(row);
+  });
 }
-function gramsFromPricePreset(item, priceStr, overrideGrams) {
-  if (typeof overrideGrams === 'number') return formatGrams(overrideGrams);
-  const pr = Number(priceStr) || 0;
-  const sp = Number(item.sprice) || 0;
-  if (sp <= 0) return '—';
-  const grams = pr / sp * 1000;
-  return formatGrams(grams);
+billList.addEventListener('click', (e)=>{
+  const vi = e.target.getAttribute('data-view-bill');
+  const di = e.target.getAttribute('data-del-bill');
+  if(vi!=null){
+    const b=state.bills[parseInt(vi,10)];
+    if(!b) return;
+    let text = `Bill @ ${new Date(b.ts).toLocaleString()}\n\n`;
+    b.lines.forEach((ln, idx)=>{
+      text += `${idx+1}. ${ln.itemName} — ${ln.grams? (ln.grams+'g ') : ''}${ln.price? ('₹'+ln.price+' ') : ''}→ ₹${ln.lineTotal}\n`;
+    });
+    text += `\nTotal: ₹${b.total.toFixed(2)}`;
+    alert(text);
+  }
+  if(di!=null){
+    if(confirm('Delete this receipt?')){
+      state.bills.splice(parseInt(di,10),1);
+      saveBills(); renderBills();
+    }
+  }
+});
+billBtn.addEventListener('click', ()=>{ renderBills(); openModal('billModal'); });
+
+/* ===== Mini system helpers (will be used in Part 2) ===== */
+function setMini(itemId, {amount, gramsInput, priceInput}={}){
+  state.ui.mini.itemId = itemId;
+  if(amount!=null) state.ui.mini.amount = Math.max(0, Math.floor(amount)); // mini shows whole rupees
+  if(gramsInput!=null) state.ui.mini.gramsInput = gramsInput;
+  if(priceInput!=null) state.ui.mini.priceInput = priceInput;
+}
+function miniAddAmount(v){ setMini(state.ui.mini.itemId, {amount: (state.ui.mini.amount + Math.max(0,Math.floor(v||0))) }); renderList(); }
+function miniClear(){ setMini(state.ui.mini.itemId, {amount:0}); renderList(); }
+
+function addMiniToBill(item){
+  const amt = Math.floor(state.ui.mini.amount||0);
+  if(amt<=0) return;
+  if(state.calc.lines.length >= (state.settings.lineCap||50)) { alert('Reached line limit in Settings.'); return; }
+  const line = {
+    itemName: `${item.name1} / ${item.name2} / ${item.name3}`,
+    grams: null, price: amt, lineTotal: rupeeRound(amt)
+  };
+  state.calc.lines.push(line);
+  renderCalc();
 }
 
-/* Render list (contains-match + interaction logging) */
+/* Convert helpers (use item's selling price) */
+function gramsToPrice(sp, g){ return sp * (g/1000); }
+function priceToGrams(sp, p){ return sp>0 ? (p/sp*1000) : 0; }
+
+/* ===== Long‑press helper (used in presets) ===== */
+function attachLongPress(el,onLong){
+  let t=null;
+  el.addEventListener('pointerdown', e=>{ if(e.button!==0) return; t=setTimeout(()=>onLong(e),520); });
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=> el.addEventListener(ev, ()=>{ if(t){clearTimeout(t); t=null;} }));
+  el.addEventListener('contextmenu', e=>{ e.preventDefault(); onLong(e); });
+}
+/* ===== Render list (contains match, one open dropdown, mini system) ===== */
 function renderList(){
-  const q=getQuery();
+  const q=(searchInput.value||'').trim().toLowerCase();
   const items = !q ? state.items : state.items.filter(it => {
     const n1=(it.name1||'').toLowerCase(), n2=(it.name2||'').toLowerCase(), n3=(it.name3||'').toLowerCase();
     return n1.includes(q) || n2.includes(q) || n3.includes(q);
   });
 
-  listEl.innerHTML=''; emptyEl.style.display = items.length? 'none' : (state.items.length? 'none':'block');
+  listEl.innerHTML=''; 
+  emptyEl.style.display = items.length? 'none' : (state.items.length? 'none':'block');
 
   const frag=document.createDocumentFragment();
-  items.forEach(it=>{
-    const card=document.createElement('div'); card.className='card';
 
-    /* Row 1: names + notes + single edit (handled in meta row to avoid duplicates) */
-    const titleRow=document.createElement('div'); titleRow.className='card-row';
-    titleRow.innerHTML = `<div class="names">${escapeHtml(it.name1)} <span class="sep">/</span> ${escapeHtml(it.name2)} <span class="sep">/</span> ${escapeHtml(it.name3)}</div>
+  items.forEach(it=>{
+    const card=document.createElement('div'); 
+    card.className='card';
+
+    /* Row 1: names + notes */
+    const titleRow=document.createElement('div'); 
+    titleRow.className='card-row';
+    titleRow.innerHTML = `
+      <div class="names">${escapeHtml(it.name1)} <span class="sep">/</span> ${escapeHtml(it.name2)} <span class="sep">/</span> ${escapeHtml(it.name3)}</div>
       <div class="row-icons">
         <button class="small-btn" title="Notes" data-notes="${it.id}">📝</button>
       </div>`;
     card.appendChild(titleRow);
 
-    /* Row 2: meta (Sell left, Bought right, one pencil edits both) */
-    const meta=document.createElement('div'); meta.className='meta';
+    /* Row 2: meta (Sell left, Bought right, single pencil) */
+    const meta=document.createElement('div'); 
+    meta.className='meta';
     meta.innerHTML = `
-      <div class="sell">${formatPrice(it.sprice)}/kg</div>
-      <div class="buy">${formatPrice(it.bprice)}/kg</div>
-      <div class="one-edit"><button class="small-btn" title="Edit prices & names" data-edit-item="${it.id}">✏️</button></div>
-    `;
+      <div class="sell">₹${(+it.sprice||0).toFixed(2)}/kg</div>
+      <div class="buy">₹${(+it.bprice||0).toFixed(2)}/kg</div>
+      <div class="one-edit"><button class="small-btn" title="Edit prices & names" data-edit-item="${it.id}">✏️</button></div>`;
     card.appendChild(meta);
 
-    /* Dropdown */
+    /* Dropdown block */
     const isActive = state.ui.activeDropdownItemId===it.id;
     if(isActive){
-      const dropdown=document.createElement('div'); dropdown.className='dropdown';
-      const type=state.ui.dropdownType; const presets=it.presets[type]||[];
-      const bar=document.createElement('div'); bar.className='bar';
-      const toggle=document.createElement('button'); toggle.className='toggle-type'; toggle.setAttribute('data-toggle-type', it.id);
-      toggle.innerHTML = `<span class="only">${type==='weight'?'⚖️':'💰'}</span>`;
+      const dropdown=document.createElement('div'); 
+      dropdown.className='dropdown';
+
+      const bar=document.createElement('div'); 
+      bar.className='bar';
+
+      /* Toggle group (icons only) */
+      const toggle=document.createElement('button'); 
+      toggle.className='toggle-type'; 
+      toggle.setAttribute('data-toggle-type', it.id);
+      toggle.innerHTML = `<span class="only">${state.ui.dropdownType==='weight'?'⚖️':'💰'}</span>`;
       bar.appendChild(toggle);
 
-      /* Quick Convert button inside dropdown */
-      const quick=document.createElement('button'); quick.className='small-btn'; quick.title='Quick convert'; quick.textContent='🧮'; quick.setAttribute('data-quick', it.id);
-      bar.appendChild(quick);
+      /* Preset strip */
+      const row=document.createElement('div'); 
+      row.className='preset-row';
 
-      const row=document.createElement('div'); row.className='preset-row';
+      const type = state.ui.dropdownType;
+      const presets = it.presets[type] || [];
       presets.forEach((p,i)=>{
-        const btn=document.createElement('button'); btn.className='preset'; btn.type='button';
-        btn.setAttribute('data-preset-item',it.id); btn.setAttribute('data-preset-type',type); btn.setAttribute('data-preset-index',String(i));
-        const bottom = type==='weight' ? priceFromWeightPreset(it,p.val,p.overridePrice) : gramsFromPricePreset(it,p.val,p.overrideGrams);
-        btn.innerHTML = `<div class="top">${escapeHtml(p.label)}</div><div class="bottom">${bottom}</div><button class="edit" data-edit-preset="${it.id}" data-type="${type}" data-index="${i}">✏️</button>`;
-        attachLongPress(btn, async ()=>{ if(confirm('Delete this preset?')){ if(type==='weight') it.presets.weight.splice(i,1); else it.presets.price.splice(i,1); await saveItems(); renderList(); }});
+        const btn=document.createElement('button'); 
+        btn.className='preset'; 
+        btn.type='button';
+        btn.setAttribute('data-preset-item',it.id); 
+        btn.setAttribute('data-preset-type',type); 
+        btn.setAttribute('data-preset-index',String(i));
+
+        let bottom;
+        if(type==='weight'){
+          const grams = Number(p.val)||0;
+          const amount = (typeof p.overridePrice==='number') ? p.overridePrice : gramsToPrice(+it.sprice||0, grams);
+          bottom = '₹'+rupeeRound(amount);
+        } else {
+          const price = Number(p.val)||0;
+          const grams = (typeof p.overrideGrams==='number') ? p.overrideGrams : priceToGrams(+it.sprice||0, price);
+          bottom = (Math.round(grams)||0)+'g';
+        }
+
+        btn.innerHTML = `
+          <div class="top">${escapeHtml(p.label)}</div>
+          <div class="bottom">${bottom}</div>
+          <button class="edit" data-edit-preset="${it.id}" data-type="${type}" data-index="${i}">✏️</button>`;
+
+        attachLongPress(btn, async ()=>{
+          if(confirm('Delete this preset?')){
+            if(type==='weight') it.presets.weight.splice(i,1);
+            else it.presets.price.splice(i,1);
+            await saveItems(); 
+            renderList();
+          }
+        });
+
         row.appendChild(btn);
       });
-      const add=document.createElement('button'); add.className='preset add'; add.type='button'; add.setAttribute('data-add-preset', it.id); add.setAttribute('data-type', type); add.textContent='+';
-      row.appendChild(add);
       bar.appendChild(row);
 
-      const close=document.createElement('button'); close.className='small-btn'; close.setAttribute('data-close-dropdown', it.id); close.textContent='✕';
+      /* Mini converter + mini total + actions */
+      const conv=document.createElement('div'); 
+      conv.className='conv';
+
+      const mini = (state.ui.mini.itemId===it.id) 
+        ? state.ui.mini 
+        : { itemId: it.id, amount: 0, gramsInput: '', priceInput: '' };
+      state.ui.mini = { itemId: it.id, amount: mini.amount, gramsInput: mini.gramsInput, priceInput: mini.priceInput };
+
+      conv.innerHTML = `
+        <div class="input">
+          <label>g</label>
+          <input type="number" inputmode="decimal" min="0" step="0.01" data-conv-g="${it.id}" value="${state.ui.mini.gramsInput}">
+        </div>
+        <div class="input">
+          <label>₹</label>
+          <input type="number" inputmode="decimal" min="0" step="0.01" data-conv-p="${it.id}" value="${state.ui.mini.priceInput}">
+        </div>
+
+        <div class="mini-total">
+          <div class="val" id="mini-${it.id}">${fmtMain(state.ui.mini.amount)}</div>
+          <div class="mini-actions">
+            <button class="small-btn" title="Add this ₹ to mini" data-mini-rupee="${it.id}">₹</button>
+            <button class="small-btn add ${state.ui.mini.amount>0?'enabled':''}" title="Add to bill" data-mini-add="${it.id}">＋</button>
+            <button class="small-btn" title="Clear mini total" data-mini-clear="${it.id}">−</button>
+          </div>
+        </div>`;
+      bar.appendChild(conv);
+
+      /* Close dropdown */
+      const close=document.createElement('button');
+      close.className='small-btn';
+      close.setAttribute('data-close-dropdown', it.id);
+      close.textContent='✕';
       bar.appendChild(close);
 
-      dropdown.appendChild(bar); card.appendChild(dropdown);
+      dropdown.appendChild(bar);
+      card.appendChild(dropdown);
     }
 
-    /* Card tap: open/close dropdown + log MRU item */
+    /* Tap card body to toggle dropdown and bump MRU */
     card.addEventListener('click', (e)=>{
-      const isAction = e.target.closest('.small-btn') || e.target.closest('.preset') || e.target.closest('.toggle-type');
+      const isAction = e.target.closest('.small-btn') || e.target.closest('.preset') || e.target.closest('.toggle-type') || e.target.closest('.conv');
       if(isAction) return;
-      state.ui.activeDropdownItemId = isActive ? null : it.id;
-      if(!isActive){ bumpRecentItem(it.id); }
+      const nowOpen = state.ui.activeDropdownItemId!==it.id;
+      state.ui.activeDropdownItemId = nowOpen ? it.id : null;
+      if(nowOpen){
+        state.ui.mini = { itemId: it.id, amount: 0, gramsInput:'', priceInput:'' };
+        bumpRecentItem(it.id);
+      }
       renderList();
     });
 
     frag.appendChild(card);
   });
+
   listEl.appendChild(frag);
 }
 
-/* Delegated actions */
-listEl.addEventListener('click', async e=>{
-  const edit=e.target.getAttribute('data-edit-item'); if(edit){ startEditItem(edit); bumpRecentItem(edit); return; }
-  const notes=e.target.getAttribute('data-notes'); if(notes){ startEditNotes(notes); bumpRecentItem(notes); return; }
-  const toggleFor=e.target.getAttribute('data-toggle-type'); if(toggleFor){ state.ui.dropdownType = state.ui.dropdownType==='weight'?'price':'weight'; renderList(); return; }
-  const closeId=e.target.getAttribute('data-close-dropdown'); if(closeId){ state.ui.activeDropdownItemId=null; renderList(); return; }
-  const quickId=e.target.getAttribute('data-quick'); if(quickId){ openConvert(quickId); return; }
-  const addItem=e.target.getAttribute('data-add-preset'); const addType=e.target.getAttribute('data-type'); if(addItem&&addType){ startEditPreset({itemId:addItem,type:addType,presetIndex:-1}); return; }
-  const editPresetItem=e.target.getAttribute('data-edit-preset'); if(editPresetItem){ const t=e.target.getAttribute('data-type'); const idx=parseInt(e.target.getAttribute('data-index'),10); startEditPreset({itemId:editPresetItem,type:t,presetIndex:idx}); return; }
+/* ===== List interactions (click + input) ===== */
+listEl.addEventListener('click', async (e)=>{
+  /* Edit item */
+  const edit=e.target.getAttribute('data-edit-item'); 
+  if(edit){ startEditItem(edit); bumpRecentItem(edit); return; }
+
+  /* Notes */
+  const notes=e.target.getAttribute('data-notes'); 
+  if(notes){ startEditNotes(notes); bumpRecentItem(notes); return; }
+
+  /* Toggle group (⚖️/💰) */
+  const toggleFor=e.target.getAttribute('data-toggle-type'); 
+  if(toggleFor){ state.ui.dropdownType = state.ui.dropdownType==='weight'?'price':'weight'; renderList(); return; }
+
+  /* Close dropdown */
+  const closeId=e.target.getAttribute('data-close-dropdown'); 
+  if(closeId){ state.ui.activeDropdownItemId=null; renderList(); return; }
+
+  /* Add preset */
+  const addItem=e.target.getAttribute('data-add-preset'); 
+  const addType=e.target.getAttribute('data-type'); 
+  if(addItem&&addType){ startEditPreset({itemId:addItem,type:addType,presetIndex:-1}); return; }
+
+  /* Edit preset */
+  const ep=e.target.getAttribute('data-edit-preset');
+  if(ep){ 
+    const t=e.target.getAttribute('data-type'); 
+    const idx=parseInt(e.target.getAttribute('data-index'),10); 
+    startEditPreset({itemId:ep,type:t,presetIndex:idx}); 
+    return; 
+  }
+
+  /* Preset tap → add to mini total */
+  const presetBtn = e.target.closest('.preset');
+  if(presetBtn && presetBtn.getAttribute('data-preset-item')){
+    const pid = presetBtn.getAttribute('data-preset-item');
+    const t = presetBtn.getAttribute('data-preset-type');
+    const idx = parseInt(presetBtn.getAttribute('data-preset-index'),10);
+    const it = byId(pid); if(!it) return;
+    const p = it.presets[t][idx];
+
+    let add = 0;
+    if(t==='weight'){
+      const grams = Number(p.val)||0;
+      const amount = (typeof p.overridePrice==='number') ? p.overridePrice : gramsToPrice(+it.sprice||0, grams);
+      add = rupeeRound(amount);
+    } else {
+      const price = Number(p.val)||0;
+      add = rupeeRound( (typeof p.overrideGrams==='number') ? ( (+it.sprice||0) * (p.overrideGrams/1000) ) : price );
+    }
+    state.ui.mini.itemId = it.id;
+    miniAddAmount(add);
+    bumpRecentItem(it.id);
+    return;
+  }
+
+  /* Mini: add ₹ from converter field to mini total */
+  const addR=e.target.getAttribute('data-mini-rupee');
+  if(addR){
+    const it = byId(addR); if(!it) return;
+    const p = parseFloat(state.ui.mini.priceInput)||0;
+    const inc = rupeeRound(p);
+    if(inc>0) miniAddAmount(inc);
+    return;
+  }
+
+  /* Mini: add to bill (“＋”) */
+  const addMini=e.target.getAttribute('data-mini-add');
+  if(addMini){
+    const it = byId(addMini); if(!it) return;
+    if(state.ui.mini.amount>0){
+      addMiniToBill(it);
+      bumpRecentItem(it.id);
+    }
+    return;
+  }
+
+  /* Mini: clear (“−”) */
+  const clr=e.target.getAttribute('data-mini-clear');
+  if(clr){ miniClear(); return; }
 });
 
-/* Service worker register */
-if('serviceWorker' in navigator){ window.addEventListener('load', ()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }); }
+/* Converter inputs */
+listEl.addEventListener('input', (e)=>{
+  /* grams → price */
+  const gFor=e.target.getAttribute('data-conv-g');
+  if(gFor){
+    const it = byId(gFor); if(!it) return;
+    const g = parseFloat(e.target.value)||0;
+    const sp = +it.sprice||0;
+    const price = rupeeRound( sp*(g/1000) );
+    const priceInput = listEl.querySelector(`input[data-conv-p="${gFor}"]`);
+    if(priceInput) priceInput.value = price>0? String(price) : '';
+    setMini(it.id, { amount: price, gramsInput: (g? String(g):''), priceInput: (price? String(price):'') });
+    renderList();
+    return;
+  }
+  /* price → grams */
+  const pFor=e.target.getAttribute('data-conv-p');
+  if(pFor){
+    const it = byId(pFor); if(!it) return;
+    const p = parseFloat(e.target.value)||0;
+    const sp = +it.sprice||0;
+    const grams = Math.round( sp>0 ? (p/sp*1000) : 0 );
+    const gramsInput = listEl.querySelector(`input[data-conv-g="${pFor}"]`);
+    if(gramsInput) gramsInput.value = grams>0? String(grams) : '';
+    setMini(it.id, { amount: rupeeRound(p), gramsInput: (grams? String(grams):''), priceInput: (p? String(p):'') });
+    renderList();
+  }
+});
 
-/* Start */
+/* ===== Service worker register + boot ===== */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
+}
+
+/* Start app */
 loadAll();
 </script>
 </body>
