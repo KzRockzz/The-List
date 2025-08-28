@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The List</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="theme-color" content="#0f1115">
+<style>
+/* Compact-first, mobile-first */
+:root{
+  --header-h: 52px;
+  --search-h: 56px;
+  --radius: 12px;
+  --radius-sm: 9px;
+  --gap: 10px;
+  --pad: 12px;
+  --shadow: 0 6px 14px rgba(0,0,0,.22);
+  --accent: #59d1ff;
+}
+html,body{height:100%}
+body{
+  margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  font-size:14px; line-height:1.25;
+  background:#0f1115; color:#e8eaed; -webkit-tap-highlight-color:transparent;
+}
+body.light{background:#f7f7f9;color:#111318}
+button,input,select,textarea{font-size:14px}
+
+.header{
+  position:fixed; inset:0 0 auto 0; height:var(--header-h);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 var(--pad); z-index:10;
+  background:rgba(10,12,16,.78); backdrop-filter:blur(8px);
+  border-bottom:1px solid rgba(255,255,255,.06)
+}
+body.light .header{background:rgba(255,255,255,.9);border-bottom:1px solid rgba(0,0,0,.06)}
+.header .title{font-weight:700; letter-spacing:.2px}
+.header .actions{display:flex; gap:6px}
+.icon-btn{
+  min-width:36px; height:36px; border-radius:10px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04); color:inherit; display:inline-flex; align-items:center; justify-content:center; padding:0 8px
+}
+body.light .icon-btn{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.08)}
+.icon-btn:active{transform:translateY(1px) scale(.98)}
+
+.main{padding-top:calc(var(--header-h) + 6px); padding-bottom:calc(var(--search-h) + 72px); max-width:800px; margin:0 auto}
+.list{display:flex; flex-direction:column; gap:8px; padding:6px var(--pad) 80px}
+
+.card{
+  border-radius:var(--radius);
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.06); padding:8px 10px 6px
+}
+body.light .card{background:#fff; border-color:rgba(0,0,0,.06)}
+
+.card-row{display:flex; align-items:center; justify-content:space-between; gap:6px}
+.names{font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.sep{opacity:.5; padding:0 4px}
+.row-icons{display:inline-flex; gap:4px}
+.meta{display:flex; gap:10px; flex-wrap:wrap; opacity:.7; font-size:.8rem; margin-top:2px}
+.meta .editable{display:inline-flex; align-items:center; gap:4px}
+
+.small-btn{
+  min-width:30px; height:30px; border-radius:9px;
+  border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.05); color:inherit
+}
+body.light .small-btn{background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.08)}
+
+.dropdown{margin-top:8px; border-radius:var(--radius-sm); background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); padding:6px}
+body.light .dropdown{background:rgba(0,0,0,.03); border-color:rgba(0,0,0,.08)}
+.dropdown .bar{display:flex; align-items:center; gap:6px}
+.toggle-type{border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.06); color:inherit; border-radius:9px; padding:6px 8px}
+body.light .toggle-type{background:rgba(0,0,0,.05); border-color:rgba(0,0,0,.08)}
+.preset-row{display:flex; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:thin; padding:2px 0; flex:1}
+
+/* COMPACT preset chips (much smaller) */
+.preset{
+  min-width:68px; max-width:92px; flex:0 0 auto;
+  border-radius:9px; padding:6px 7px;
+  background:#131722; border:1px solid rgba(255,255,255,.08); position:relative
+}
+body.light .preset{background:#f4f6f9; border-color:rgba(0,0,0,.08)}
+.preset .top{font-weight:600; font-size:.8rem; line-height:1}
+.preset .bottom{font-size:.72rem; opacity:.85; margin-top:2px; line-height:1}
+.preset.add{min-width:48px; display:inline-flex; align-items:center; justify-content:center; background:transparent; border-style:dashed}
+.preset .edit{position:absolute; top:2px; right:2px; background:transparent; border:none; color:inherit; opacity:.7; font-size:.8rem}
+
+.search-wrap{position:fixed; left:0; right:0; height:var(--search-h); padding:6px var(--pad); display:flex; align-items:center; z-index:11; transition:transform .22s ease, top .22s ease, bottom .22s ease}
+.search-inner{max-width:800px; margin:0 auto; display:flex; gap:6px; width:100%}
+.search{flex:1; display:flex; gap:6px; align-items:center; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:10px; padding:6px 8px}
+body.light .search{background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.08)}
+.search input{flex:1; border:none; outline:none; background:transparent; color:inherit}
+.records-btn{border-radius:10px; background:var(--accent); border:none; color:#001018; font-weight:700; padding:6px 10px}
+.search-wrap.bottom{bottom:env(safe-area-inset-bottom); top:auto}
+.search-wrap.top{top:var(--header-h); bottom:auto}
+
+.fab{position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom)); height:52px; width:52px; border-radius:50%; background:linear-gradient(180deg, var(--accent), #2ab8ff); color:#001018; border:none; box-shadow:var(--shadow); font-weight:800; z-index:12}
+
+.modal{position:fixed; inset:0; display:none; align-items:flex-end; justify-content:center; z-index:50}
+.modal.open{display:flex}
+.backdrop{position:absolute; inset:0; background:rgba(0,0,0,.45); backdrop-filter:blur(4px)}
+.sheet{position:relative; width:100%; max-width:820px; border-top-left-radius:16px; border-top-right-radius:16px; background:#0f131c; border:1px solid rgba(255,255,255,.08); transform:translateY(100%); animation:slideUp .22s ease forwards}
+@keyframes slideUp{to{transform:translateY(0)}}
+body.light .sheet{background:#fff; border-color:rgba(0,0,0,.08)}
+.sheet .handle{width:42px; height:4px; border-radius:3px; background:rgba(255,255,255,.25); margin:8px auto 2px}
+.sheet .header-row{display:flex; align-items:center; justify-content:space-between; padding:6px 12px}
+.sheet .content{padding:6px 12px 12px; max-height:65vh; overflow:auto}
+
+.form-grid{display:grid; grid-template-columns:1fr; gap:8px}
+.input{display:flex; flex-direction:column; gap:4px}
+.input label{font-size:.8rem; opacity:.8}
+.input input,.input textarea,.input select{border-radius:9px; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.05); color:inherit; padding:8px 10px}
+body.light .input input, body.light .input textarea, body.light .input select{background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.1)}
+.input .hint{font-size:.75rem; color:#ff8b8b; display:none}
+.input.invalid .hint{display:block}
+
+.btn{border-radius:10px; border:none; padding:8px 12px; font-weight:700}
+.btn.primary{background:var(--accent); color:#001018}
+.btn.alt{background:rgba(255,255,255,.08); color:inherit; border:1px solid rgba(255,255,255,.12)}
+.btn.danger{background:#ff5c5c; color:#fff}
+.divider{height:1px; background:rgba(255,255,255,.08); margin:6px 0}
+.small-muted{font-size:.75rem; opacity:.75}
+
+.calc-table{display:grid; grid-template-columns:1fr .8fr .8fr 36px; gap:6px; align-items:center}
+.calc-row{display:contents}
+.calc-total{position:sticky; bottom:0; padding:8px 0 6px; background:inherit; display:flex; align-items:center; justify-content:space-between; border-top:1px solid rgba(255,255,255,.1)}
+</style>
+</head>
+<body class="dark">
+  <header class="header">
+    <div class="title">The List</div>
+    <div class="actions">
+      <button class="icon-btn" id="themeBtn" title="Theme">🌙</button>
+      <button class="icon-btn" id="calcBtn" title="Calculator">🧮</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="list" id="list"></div>
+    <div id="emptyState" class="small-muted" style="text-align:center; padding:20px 0; display:none">No items yet. Tap + to add your first item.</div>
+  </main>
+
+  <button id="fab" class="fab" title="Add">＋</button>
+
+  <!-- Search bar -->
+  <div id="searchWrap" class="search-wrap bottom" aria-label="Search bar">
+    <div class="search-inner">
+      <div class="search" style="flex:1">
+        <span>🔎</span>
+        <input id="searchInput" type="text" placeholder="Search prefix in any name…" autocapitalize="none" autocomplete="off" spellcheck="false">
+        <button id="clearSearchBtn" class="icon-btn" style="min-width:30px;height:30px">✕</button>
+      </div>
+      <button class="records-btn" id="recordsBtn" title="Recent">Records</button>
+    </div>
+  </div>
+
+  <!-- Item Modal -->
+  <div class="modal" id="itemModal" role="dialog" aria-modal="true">
+    <div class="backdrop" data-close="itemModal"></div>
+    <div class="sheet">
+      <div class="handle"></div>
+      <div class="header-row">
+        <div id="itemModalTitle" class="small-muted">Add item</div>
+        <button class="small-btn" data-close="itemModal">✕</button>
+      </div>
+      <div class="content">
+        <form id="itemForm" novalidate>
+          <div class="form-grid">
+            <div class="input" id="name1Wrap"><label for="name1">Name 1</label><input id="name1" required maxlength="80"><div class="hint">Required</div></div>
+            <div class="input" id="name2Wrap"><label for="name2">Name 2</label><input id="name2" required maxlength="80"><div class="hint">Required</div></div>
+            <div class="input" id="name3Wrap"><label for="name3">Name 3</label><input id="name3" required maxlength="80"><div class="hint">Required</div></div>
+            <div class="input" id="bpriceWrap"><label for="bprice">Bought ₹/kg</label><input id="bprice" type="number" step="0.01" min="0" inputmode="decimal"><div class="hint">Number ≥ 0</div></div>
+            <div class="input" id="spriceWrap"><label for="sprice">Sell ₹/kg</label><input id="sprice" type="number" step="0.01" min="0" inputmode="decimal"><div class="hint">Number ≥ 0</div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="small-muted">Default presets added on create.</div>
+          <div style="display:flex; gap:6px; justify-content:flex-end; margin-top:8px">
+            <button type="button" class="btn alt" data-close="itemModal">Cancel</button>
+            <button type="submit" class="btn primary">Save</button>
+            <button type="button" class="btn danger" id="deleteItemBtn" style="display:none">Delete</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preset Modal -->
+  <div class="modal" id="presetModal" role="dialog" aria-modal="true">
+    <div class="backdrop" data-close="presetModal"></div>
+    <div class="sheet">
+      <div class="handle"></div>
+      <div class="header-row">
+        <div id="presetModalTitle" class="small-muted">Edit preset</div>
+        <button class="small-btn" data-close="presetModal">✕</button>
+      </div>
+      <div class="content">
+        <form id="presetForm" novalidate>
+          <div class="input" id="presetValWrap"><label id="presetValLabel" for="presetVal">Value</label><input id="presetVal" type="number" step="0.01" min="0" inputmode="decimal"><div class="hint">Number ≥ 0</div></div>
+          <div style="display:flex; gap:6px; justify-content:flex-end; margin-top:8px">
+            <button type="button" class="btn alt" data-close="presetModal">Cancel</button>
+            <button type="submit" class="btn primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes Modal -->
+  <div class="modal" id="notesModal" role="dialog" aria-modal="true">
+    <div class="backdrop" data-close="notesModal"></div>
+    <div class="sheet">
+      <div class="handle"></div>
+      <div class="header-row">
+        <div class="small-muted">Notes</div>
+        <button class="small-btn" data-close="notesModal">✕</button>
+      </div>
+      <div class="content">
+        <div class="input"><label for="notesText">Notes</label><textarea id="notesText" rows="8" placeholder="Write notes…"></textarea></div>
+        <div style="display:flex; gap:6px; justify-content:flex-end; margin-top:8px">
+          <button type="button" class="btn alt" data-close="notesModal">Cancel</button>
+          <button type="button" class="btn primary" id="saveNotesBtn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Searches Modal -->
+  <div class="modal" id="recordsModal" role="dialog" aria-modal="true">
+    <div class="backdrop" data-close="recordsModal"></div>
+    <div class="sheet">
+      <div class="handle"></div>
+      <div class="header-row">
+        <div class="small-muted">Recent searches</div>
+        <button class="small-btn" data-close="recordsModal">✕</button>
+      </div>
+      <div class="content">
+        <div id="recordsList"></div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px">
+          <div class="small-muted">Max 15. Tap to use.</div>
+          <button class="btn alt" id="clearRecordsBtn">Clear all</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calculator Modal -->
+  <div class="modal" id="calcModal" role="dialog" aria-modal="true">
+    <div class="backdrop" data-close="calcModal"></div>
+    <div class="sheet">
+      <div class="handle"></div>
+      <div class="header-row">
+        <div class="small-muted">Calculator</div>
+        <button class="small-btn" data-close="calcModal">✕</button>
+      </div>
+      <div class="content">
+        <div class="calc-table" style="font-weight:700; opacity:.85; margin-bottom:4px"><div>Item</div><div>Weight (g)</div><div>Price (₹)</div><div></div></div>
+        <div id="calcTable"></div>
+        <button class="btn alt" id="addCalcRowBtn" style="margin-top:6px">+ Add item</button>
+        <div class="calc-total">
+          <div class="small-muted">Weight @ sprice + direct ₹ add up.</div>
+          <div><span class="small-muted">Total:</span> <strong id="calcTotal">₹0.00</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* --- Minimal, durable IndexedDB K/V wrapper --- */
+const idb = (() => {
+  const DB = 'the-list-db', STORE = 'kv';
+  let dbp = null;
+  function open(){ if(dbp) return dbp;
+    dbp = new Promise((res,rej)=>{ const r = indexedDB.open(DB,1);
+      r.onupgradeneeded = e => { const db=e.target.result; if(!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE); };
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    }); return dbp;
+  }
+  async function get(key){ const db=await open(); return new Promise((res,rej)=>{ const tx=db.transaction(STORE,'readonly'); const st=tx.objectStore(STORE); const rq=st.get(key); rq.onsuccess=()=>res(rq.result); rq.onerror=()=>rej(rq.error); });}
+  async function set(key,val){ const db=await open(); return new Promise((res,rej)=>{ const tx=db.transaction(STORE,'readwrite'); const st=tx.objectStore(STORE); const rq=st.put(val,key); rq.onsuccess=()=>res(); rq.onerror=()=>rej(rq.error); });}
+  return {get,set};
+})();
+
+/* --- App State --- */
+const defaultWeightPresets = [{val:"50",label:"50g"},{val:"100",label:"100g"},{val:"500",label:"500g"},{val:"1000",label:"1kg"}];
+const defaultPricePresets  = [{val:"10",label:"₹10"},{val:"30",label:"₹30"},{val:"50",label:"₹50"}];
+
+const state = {
+  items: [],
+  recentSearches: [],
+  ui: { theme:'dark', searchActive:false, activeDropdownItemId:null, dropdownType:'weight', editingItemId:null, editingPreset:null },
+  calcRows:[]
+};
+
+/* --- Elements --- */
+const listEl = document.getElementById('list');
+const emptyEl = document.getElementById('emptyState');
+const themeBtn = document.getElementById('themeBtn');
+const calcBtn = document.getElementById('calcBtn');
+const fab = document.getElementById('fab');
+const searchWrap = document.getElementById('searchWrap');
+const searchInput = document.getElementById('searchInput');
+const clearSearchBtn = document.getElementById('clearSearchBtn');
+const recordsBtn = document.getElementById('recordsBtn');
+
+const itemModal = document.getElementById('itemModal');
+const itemForm = document.getElementById('itemForm');
+const itemModalTitle = document.getElementById('itemModalTitle');
+const name1 = document.getElementById('name1');
+const name2 = document.getElementById('name2');
+const name3 = document.getElementById('name3');
+const bprice = document.getElementById('bprice');
+const sprice = document.getElementById('sprice');
+const deleteItemBtn = document.getElementById('deleteItemBtn');
+
+const presetModal = document.getElementById('presetModal');
+const presetForm = document.getElementById('presetForm');
+const presetVal = document.getElementById('presetVal');
+const presetValLabel = document.getElementById('presetValLabel');
+const presetModalTitle = document.getElementById('presetModalTitle');
+
+const notesModal = document.getElementById('notesModal');
+const notesText = document.getElementById('notesText');
+const saveNotesBtn = document.getElementById('saveNotesBtn');
+
+const recordsModal = document.getElementById('recordsModal');
+const recordsList = document.getElementById('recordsList');
+const clearRecordsBtn = document.getElementById('clearRecordsBtn');
+
+const calcModal = document.getElementById('calcModal');
+const calcTable = document.getElementById('calcTable');
+const addCalcRowBtn = document.getElementById('addCalcRowBtn');
+const calcTotalEl = document.getElementById('calcTotal');
+
+/* --- Helpers --- */
+const byId = id => state.items.find(i=>i.id===id);
+const genId = () => Math.random().toString(36).slice(2)+Date.now().toString(36);
+const formatPrice = n => `₹${(Number(n)||0).toFixed(2)}`;
+const formatGrams = g => `${(Number(g)||0).toFixed(1)}g`;
+const escapeHtml = s => String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* --- Persistence --- */
+async function loadAll(){
+  const [items,recent,theme] = await Promise.all([idb.get('items'), idb.get('recent'), idb.get('theme')]);
+  state.items = Array.isArray(items)? items : [];
+  state.recentSearches = Array.isArray(recent)? recent : [];
+  if(theme==='light'||theme==='dark') state.ui.theme = theme;
+  applyTheme(); renderList(); renderRecords();
+}
+async function saveItems(){ await idb.set('items', state.items); }
+async function saveRecent(){ await idb.set('recent', state.recentSearches); }
+async function saveTheme(){ await idb.set('theme', state.ui.theme); }
+
+/* --- Theme --- */
+function applyTheme(){
+  document.body.classList.toggle('light', state.ui.theme==='light');
+  document.body.classList.toggle('dark', state.ui.theme==='dark');
+  themeBtn.textContent = state.ui.theme==='light' ? '☀️' : '🌙';
+}
+themeBtn.addEventListener('click', ()=>{ state.ui.theme = state.ui.theme==='dark'?'light':'dark'; applyTheme(); saveTheme(); });
+
+/* --- Search --- */
+function setSearchBarTop(active){
+  state.ui.searchActive = !!active;
+  searchWrap.classList.toggle('top', !!active);
+  searchWrap.classList.toggle('bottom', !active);
+}
+function getQuery(){ return searchInput.value.trim().toLowerCase(); }
+searchInput.addEventListener('focus', ()=>setSearchBarTop(true));
+searchInput.addEventListener('blur', ()=>{ if(!getQuery()) setSearchBarTop(false); });
+searchInput.addEventListener('input', ()=>{ const q=getQuery(); if(q){ state.recentSearches = [q, ...state.recentSearches.filter(x=>x!==q)].slice(0,15); saveRecent(); }
+  renderList(); setSearchBarTop(true); });
+clearSearchBtn.addEventListener('click', ()=>{ searchInput.value=''; setSearchBarTop(false); renderList(); searchInput.focus(); });
+recordsBtn.addEventListener('click', ()=> openModal('recordsModal'));
+
+/* --- Modals --- */
+function openModal(id){ const el=document.getElementById(id); if(el) el.classList.add('open'); }
+function closeModal(id){ const el=document.getElementById(id); if(el) el.classList.remove('open'); }
+document.addEventListener('click', e=>{ const c=e.target.getAttribute('data-close'); if(c) closeModal(c); if(e.target.classList.contains('backdrop')){ const id=e.target.getAttribute('data-close'); if(id) closeModal(id);} });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ const open=[...document.querySelectorAll('.modal.open')]; if(open.length) open.at(-1).classList.remove('open'); }});
+
+/* --- Items --- */
+fab.addEventListener('click', startAddItem);
+function startAddItem(){
+  state.ui.editingItemId = null; itemModalTitle.textContent='Add item'; deleteItemBtn.style.display='none';
+  name1.value=''; name2.value=''; name3.value=''; bprice.value=''; sprice.value='';
+  openModal('itemModal'); setTimeout(()=>name1.focus(),50);
+}
+function startEditItem(id){
+  const it=byId(id); if(!it) return;
+  state.ui.editingItemId=id; itemModalTitle.textContent='Edit item'; deleteItemBtn.style.display='inline-block';
+  name1.value=it.name1; name2.value=it.name2; name3.value=it.name3; bprice.value=it.bprice; sprice.value=it.sprice;
+  openModal('itemModal');
+}
+function validateItem(){ const ok = name1.value.trim()&&name2.value.trim()&&name3.value.trim() && parseFloat(bprice.value)>=0 && parseFloat(sprice.value)>=0; return !!ok; }
+itemForm.addEventListener('submit', async (e)=>{
+  e.preventDefault(); if(!validateItem()) return alert('Please fill all fields correctly.');
+  const payload = { name1:name1.value.trim(), name2:name2.value.trim(), name3:name3.value.trim(), bprice:+(+bprice.value||0).toFixed(2), sprice:+(+sprice.value||0).toFixed(2) };
+  if(!state.ui.editingItemId){
+    state.items.unshift({ id:genId(), ...payload, presets:{ weight:JSON.parse(JSON.stringify(defaultWeightPresets)), price:JSON.parse(JSON.stringify(defaultPricePresets)) }, notes:'' });
+  }else{
+    const it=byId(state.ui.editingItemId); Object.assign(it, payload);
+  }
+  await saveItems(); closeModal('itemModal'); renderList();
+});
+deleteItemBtn.addEventListener('click', async ()=>{
+  if(!state.ui.editingItemId) return; const it=byId(state.ui.editingItemId);
+  if(it && confirm(`Delete "${it.name1} / ${it.name2} / ${it.name3}"?`)){
+    state.items = state.items.filter(x=>x.id!==it.id);
+    if(state.ui.activeDropdownItemId===it.id) state.ui.activeDropdownItemId=null;
+    await saveItems(); closeModal('itemModal'); renderList();
+  }
+});
+
+/* Notes */
+let editingNotesItemId=null;
+function startEditNotes(id){ const it=byId(id); if(!it) return; editingNotesItemId=id; document.getElementById('notesText').value=it.notes||''; openModal('notesModal');}
+document.getElementById('saveNotesBtn').addEventListener('click', async ()=>{ const it=byId(editingNotesItemId); if(it){ it.notes = document.getElementById('notesText').value; await saveItems(); } closeModal('notesModal'); });
+
+/* Presets */
+function startEditPreset({itemId,type,presetIndex}){
+  const it=byId(itemId); if(!it) return;
+  state.ui.editingPreset={itemId,type,presetIndex};
+  presetModalTitle.textContent = (presetIndex===-1?'Add ':'Edit ') + (type==='weight'?'weight':'price') + ' preset';
+  presetVal.value = presetIndex===-1? '' : it.presets[type][presetIndex]?.val ?? '';
+  presetValLabel.textContent = type==='weight'?'Grams (g)':'Price (₹)'; openModal('presetModal'); setTimeout(()=>presetVal.focus(),50);
+}
+presetForm.addEventListener('submit', async (e)=>{
+  e.preventDefault(); const ep=state.ui.editingPreset; if(!ep) return;
+  const v=parseFloat(presetVal.value); if(isNaN(v)||v<0) return alert('Enter a valid number ≥ 0.');
+  const it=byId(ep.itemId); if(!it) return;
+  if(ep.type==='weight'){ const lab = v===1000?'1kg':`${v}g`; const obj={val:String(v),label:lab}; if(ep.presetIndex===-1) it.presets.weight.push(obj); else it.presets.weight[ep.presetIndex]=obj; }
+  else{ const obj={val:String(v),label:`₹${v}`}; if(ep.presetIndex===-1) it.presets.price.push(obj); else it.presets.price[ep.presetIndex]=obj; }
+  await saveItems(); closeModal('presetModal'); state.ui.editingPreset=null; renderList();
+});
+
+/* Long-press delete preset */
+function attachLongPress(el,onLong){
+  let t=null; el.addEventListener('pointerdown', e=>{ if(e.button!==0) return; t=setTimeout(()=>onLong(e),520); });
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=> el.addEventListener(ev, ()=>{ if(t){clearTimeout(t); t=null;} }));
+  el.addEventListener('contextmenu', e=>{ e.preventDefault(); onLong(e); });
+}
+
+/* Records */
+function renderRecords(){
+  recordsList.innerHTML=''; if(!state.recentSearches.length){ recordsList.innerHTML='<div class="small-muted" style="text-align:center;padding:10px 0">No recent</div>'; return; }
+  const frag=document.createDocumentFragment();
+  state.recentSearches.forEach(s=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08)';
+    row.innerHTML=`<div>${escapeHtml(s)}</div><div style="display:flex;gap:6px"><button class="small-btn" data-record="${s}">Use</button><button class="small-btn" data-delrecord="${s}">✕</button></div>`;
+    frag.appendChild(row);
+  }); recordsList.appendChild(frag);
+}
+recordsModal.addEventListener('click', async e=>{
+  const use=e.target.getAttribute('data-record'); const del=e.target.getAttribute('data-delrecord');
+  if(use){ searchInput.value=use; renderList(); setSearchBarTop(true); closeModal('recordsModal'); searchInput.focus(); }
+  if(del){ state.recentSearches=state.recentSearches.filter(x=>x!==del); await saveRecent(); renderRecords(); }
+});
+document.getElementById('clearRecordsBtn').addEventListener('click', async ()=>{ if(state.recentSearches.length && confirm('Clear all recent searches?')){ state.recentSearches=[]; await saveRecent(); renderRecords(); }});
+
+/* Calculator */
+function addCalcRow(init){ const row={id:genId(), itemId:state.items?.id||null, weight:0, price:0, ...(init||{})}; state.calcRows.push(row); renderCalc(); }
+function renderCalc(){
+  calcTable.innerHTML=''; const frag=document.createDocumentFragment();
+  state.calcRows.forEach(r=>{
+    const row=document.createElement('div'); row.className='calc-row';
+    const opts=state.items.map(it=>`<option value="${it.id}" ${it.id===r.itemId?'selected':''}>${escapeHtml(it.name1)} / ${escapeHtml(it.name2)} / ${escapeHtml(it.name3)}</option>`).join('');
+    row.innerHTML = `
+      <div class="input"><select data-calcs="item" data-id="${r.id}">${opts}</select></div>
+      <div class="input"><input data-calcs="weight" data-id="${r.id}" type="number" inputmode="decimal" placeholder="g" value="${r.weight||''}"></div>
+      <div class="input"><input data-calcs="price" data-id="${r.id}" type="number" inputmode="decimal" placeholder="₹" value="${r.price||''}"></div>
+      <div><button class="small-btn" data-calcs="del" data-id="${r.id}">✕</button></div>`;
+    frag.appendChild(row);
+  }); calcTable.appendChild(frag); updateCalcTotal();
+}
+function updateCalcTotal(){
+  let total=0; state.calcRows.forEach(r=>{ const it=byId(r.itemId); const sp=it? Number(it.sprice)||0 : 0; const w=Number(r.weight)||0; const p=Number(r.price)||0; if(w>0) total += (w/1000)*sp; if(p>0) total += p; });
+  calcTotalEl.textContent = formatPrice(total);
+}
+document.getElementById('addCalcRowBtn').addEventListener('click', ()=>addCalcRow());
+calcTable.addEventListener('input', e=>{
+  const id=e.target.getAttribute('data-id'); const key=e.target.getAttribute('data-calcs'); const row=state.calcRows.find(r=>r.id===id); if(!row) return;
+  if(key==='item') row.itemId=e.target.value; if(key==='weight') row.weight=parseFloat(e.target.value)||0; if(key==='price') row.price=parseFloat(e.target.value)||0; updateCalcTotal();
+});
+calcTable.addEventListener('click', e=>{ const id=e.target.getAttribute('data-id'); const key=e.target.getAttribute('data-calcs'); if(key==='del'){ state.calcRows = state.calcRows.filter(r=>r.id!==id); renderCalc(); }});
+calcBtn.addEventListener('click', ()=>{ if(!state.calcRows.length) addCalcRow(); openModal('calcModal'); });
+
+/* List render */
+function priceFromWeightPreset(item, gramsStr){ const grams=Number(gramsStr)||0; const sp=Number(item.sprice)||0; const amount=sp*(grams/1000); return isFinite(amount)? formatPrice(amount) : '—'; }
+function gramsFromPricePreset(item, priceStr){ const pr=Number(priceStr)||0; const sp=Number(item.sprice)||0; if(sp<=0) return '—'; return formatGrams(pr/sp*1000); }
+function renderList(){
+  const q=(searchInput.value||'').trim().toLowerCase();
+  const items = !q ? state.items : state.items.filter(it => (it.name1||'').toLowerCase().startsWith(q) || (it.name2||'').toLowerCase().startsWith(q) || (it.name3||'').toLowerCase().startsWith(q));
+  listEl.innerHTML=''; emptyEl.style.display = items.length? 'none' : (state.items.length? 'none':'block');
+  const frag=document.createDocumentFragment();
+  items.forEach(it=>{
+    const card=document.createElement('div'); card.className='card';
+    const titleRow=document.createElement('div'); titleRow.className='card-row';
+    titleRow.innerHTML = `<div class="names">${escapeHtml(it.name1)} <span class="sep">/</span> ${escapeHtml(it.name2)} <span class="sep">/</span> ${escapeHtml(it.name3)}</div>
+      <div class="row-icons">
+        <button class="small-btn" title="Edit" data-edit-item="${it.id}">✏️</button>
+        <button class="small-btn" title="Notes" data-notes="${it.id}">📝</button>
+      </div>`;
+    card.appendChild(titleRow);
+    const meta=document.createElement('div'); meta.className='meta';
+    meta.innerHTML = `<div class="editable">Bought ${formatPrice(it.bprice)}/kg <button class="small-btn" data-edit-item="${it.id}">✏️</button></div>
+      <div class="editable">Sell ${formatPrice(it.sprice)}/kg <button class="small-btn" data-edit-item="${it.id}">✏️</button></div>`;
+    card.appendChild(meta);
+
+    const isActive = state.ui.activeDropdownItemId===it.id;
+    if(isActive){
+      const dropdown=document.createElement('div'); dropdown.className='dropdown';
+      const type=state.ui.dropdownType; const presets=it.presets[type]||[];
+      const bar=document.createElement('div'); bar.className='bar';
+      const toggle=document.createElement('button'); toggle.className='toggle-type'; toggle.setAttribute('data-toggle-type', it.id);
+      toggle.textContent = type==='weight' ? '⚖️ Weight' : '💰 Price'; bar.appendChild(toggle);
+      const row=document.createElement('div'); row.className='preset-row';
+      presets.forEach((p,i)=>{
+        const btn=document.createElement('button'); btn.className='preset'; btn.type='button';
+        btn.setAttribute('data-preset-item',it.id); btn.setAttribute('data-preset-type',type); btn.setAttribute('data-preset-index',String(i));
+        const bottom = type==='weight' ? priceFromWeightPreset(it,p.val) : gramsFromPricePreset(it,p.val);
+        btn.innerHTML = `<div class="top">${escapeHtml(p.label)}</div><div class="bottom">${bottom}</div><button class="edit" data-edit-preset="${it.id}" data-type="${type}" data-index="${i}">✏️</button>`;
+        attachLongPress(btn, async ()=>{ if(confirm('Delete this preset?')){ if(type==='weight') it.presets.weight.splice(i,1); else it.presets.price.splice(i,1); await saveItems(); renderList(); }});
+        row.appendChild(btn);
+      });
+      const add=document.createElement('button'); add.className='preset add'; add.type='button'; add.setAttribute('data-add-preset', it.id); add.setAttribute('data-type', type); add.textContent='+';
+      row.appendChild(add);
+      bar.appendChild(row);
+      const close=document.createElement('button'); close.className='small-btn'; close.setAttribute('data-close-dropdown', it.id); close.textContent='✕';
+      bar.appendChild(close);
+
+      dropdown.appendChild(bar); card.appendChild(dropdown);
+    }
+
+    card.addEventListener('click', e=>{
+      const isAction = e.target.closest('.small-btn') || e.target.closest('.preset') || e.target.closest('.toggle-type');
+      if(isAction) return;
+      state.ui.activeDropdownItemId = isActive ? null : it.id; renderList();
+    });
+
+    frag.appendChild(card);
+  });
+  listEl.appendChild(frag);
+}
+
+/* Delegated actions */
+listEl.addEventListener('click', e=>{
+  const edit=e.target.getAttribute('data-edit-item'); if(edit){ startEditItem(edit); return; }
+  const notes=e.target.getAttribute('data-notes'); if(notes){ startEditNotes(notes); return; }
+  const toggleFor=e.target.getAttribute('data-toggle-type'); if(toggleFor){ state.ui.dropdownType = state.ui.dropdownType==='weight'?'price':'weight'; renderList(); return; }
+  const closeId=e.target.getAttribute('data-close-dropdown'); if(closeId){ state.ui.activeDropdownItemId=null; renderList(); return; }
+  const addItem=e.target.getAttribute('data-add-preset'); const addType=e.target.getAttribute('data-type'); if(addItem&&addType){ startEditPreset({itemId:addItem,type:addType,presetIndex:-1}); return; }
+  const editPresetItem=e.target.getAttribute('data-edit-preset'); if(editPresetItem){ const t=e.target.getAttribute('data-type'); const idx=parseInt(e.target.getAttribute('data-index'),10); startEditPreset({itemId:editPresetItem,type:t,presetIndex:idx}); return; }
+});
+
+/* Service worker register */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
+}
+
+/* Start */
+loadAll();
+</script>
+</body>
+</html>
