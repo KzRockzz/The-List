@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="theme-color" content="#0f1115">
 <style>
-/* Compact-first, mobile-first */
+/* Compact-first, tuned for small fonts and tight presets */
 :root{
   --header-h: 52px;
   --search-h: 56px;
@@ -18,16 +18,19 @@
   --pad: 12px;
   --shadow: 0 6px 14px rgba(0,0,0,.22);
   --accent: #59d1ff;
+  --kb: 0px; /* dynamic keyboard lift */
+  --font-scale: 1; /* adjustable in Settings */
 }
 html,body{height:100%}
 body{
   margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  font-size:14px; line-height:1.25;
+  font-size: calc(14px*var(--font-scale)); line-height:1.25;
   background:#0f1115; color:#e8eaed; -webkit-tap-highlight-color:transparent;
 }
 body.light{background:#f7f7f9;color:#111318}
-button,input,select,textarea{font-size:14px}
+button,input,select,textarea{font-size:inherit;color:inherit}
 
+/* Header */
 .header{
   position:fixed; inset:0 0 auto 0; height:var(--header-h);
   display:flex; align-items:center; justify-content:space-between;
@@ -45,24 +48,36 @@ body.light .header{background:rgba(255,255,255,.9);border-bottom:1px solid rgba(
 }
 body.light .icon-btn{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.08)}
 .icon-btn:active{transform:translateY(1px) scale(.98)}
+.icon-btn .only{display:inline-block; font-size:1rem}
 
+/* Main + list */
 .main{padding-top:calc(var(--header-h) + 6px); padding-bottom:calc(var(--search-h) + 72px); max-width:800px; margin:0 auto}
 .list{display:flex; flex-direction:column; gap:8px; padding:6px var(--pad) 80px}
 
+/* Cards */
 .card{
   border-radius:var(--radius);
   background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
   border:1px solid rgba(255,255,255,.06); padding:8px 10px 6px
 }
 body.light .card{background:#fff; border-color:rgba(0,0,0,.06)}
-
 .card-row{display:flex; align-items:center; justify-content:space-between; gap:6px}
 .names{font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .sep{opacity:.5; padding:0 4px}
 .row-icons{display:inline-flex; gap:4px}
-.meta{display:flex; gap:10px; flex-wrap:wrap; opacity:.7; font-size:.8rem; margin-top:2px}
-.meta .editable{display:inline-flex; align-items:center; gap:4px}
 
+/* Meta row: sell left, bought right, no labels */
+.meta{
+  display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:2px
+}
+.meta .sell, .meta .buy{
+  display:inline-flex; align-items:center; gap:6px; opacity:.85
+}
+.meta .sell{order:1;font-size:.9rem}
+.meta .buy{order:2;font-size:.8rem;opacity:.75}
+.meta .one-edit{margin-left:auto}
+
+/* Buttons small */
 .small-btn{
   min-width:30px; height:30px; border-radius:9px;
   border:1px solid rgba(255,255,255,.1);
@@ -70,36 +85,42 @@ body.light .card{background:#fff; border-color:rgba(0,0,0,.06)}
 }
 body.light .small-btn{background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.08)}
 
+/* Dropdown */
 .dropdown{margin-top:8px; border-radius:var(--radius-sm); background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); padding:6px}
 body.light .dropdown{background:rgba(0,0,0,.03); border-color:rgba(0,0,0,.08)}
 .dropdown .bar{display:flex; align-items:center; gap:6px}
-.toggle-type{border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.06); color:inherit; border-radius:9px; padding:6px 8px}
+.toggle-type{
+  border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.06);
+  color:inherit; border-radius:9px; padding:6px 8px; display:inline-flex; align-items:center; gap:6px
+}
 body.light .toggle-type{background:rgba(0,0,0,.05); border-color:rgba(0,0,0,.08)}
-.preset-row{display:flex; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:thin; padding:2px 0; flex:1}
+.toggle-type .only{font-size:1rem}
 
-/* COMPACT preset chips (much smaller) */
+/* Preset row (compact) with fixed readable contrast */
+.preset-row{display:flex; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:thin; padding:2px 0; flex:1}
 .preset{
   min-width:68px; max-width:92px; flex:0 0 auto;
   border-radius:9px; padding:6px 7px;
-  background:#131722; border:1px solid rgba(255,255,255,.08); position:relative
+  background:#131722; border:1px solid rgba(255,255,255,.08); position:relative; color:inherit
 }
 body.light .preset{background:#f4f6f9; border-color:rgba(0,0,0,.08)}
-.preset .top{font-weight:600; font-size:.8rem; line-height:1}
-.preset .bottom{font-size:.72rem; opacity:.85; margin-top:2px; line-height:1}
+.preset .top{font-weight:600; font-size:.8rem; line-height:1; color:inherit}
+.preset .bottom{font-size:.72rem; opacity:.9; margin-top:2px; line-height:1; color:inherit}
 .preset.add{min-width:48px; display:inline-flex; align-items:center; justify-content:center; background:transparent; border-style:dashed}
 .preset .edit{position:absolute; top:2px; right:2px; background:transparent; border:none; color:inherit; opacity:.7; font-size:.8rem}
 
-.search-wrap{position:fixed; left:0; right:0; height:var(--search-h); padding:6px var(--pad); display:flex; align-items:center; z-index:11; transition:transform .22s ease, top .22s ease, bottom .22s ease}
+/* Search bar (always bottom) */
+.search-wrap{position:fixed; left:0; right:0; height:var(--search-h); padding:6px var(--pad); display:flex; align-items:center; z-index:11}
 .search-inner{max-width:800px; margin:0 auto; display:flex; gap:6px; width:100%}
 .search{flex:1; display:flex; gap:6px; align-items:center; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:10px; padding:6px 8px}
 body.light .search{background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.08)}
 .search input{flex:1; border:none; outline:none; background:transparent; color:inherit}
-.records-btn{border-radius:10px; background:var(--accent); border:none; color:#001018; font-weight:700; padding:6px 10px}
-.search-wrap.bottom{bottom:env(safe-area-inset-bottom); top:auto}
-.search-wrap.top{top:var(--header-h); bottom:auto}
+.search-wrap{bottom: calc(env(safe-area-inset-bottom) + var(--kb));}
 
-.fab{position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom)); height:52px; width:52px; border-radius:50%; background:linear-gradient(180deg, var(--accent), #2ab8ff); color:#001018; border:none; box-shadow:var(--shadow); font-weight:800; z-index:12}
+/* FAB (lifts above keyboard) */
+.fab{position:fixed; right:16px; bottom: calc(16px + env(safe-area-inset-bottom) + var(--kb)); height:52px; width:52px; border-radius:50%; background:linear-gradient(180deg, var(--accent), #2ab8ff); color:#001018; border:none; box-shadow:var(--shadow); font-weight:800; z-index:12}
 
+/* Modals + forms (unchanged basics) */
 .modal{position:fixed; inset:0; display:none; align-items:flex-end; justify-content:center; z-index:50}
 .modal.open{display:flex}
 .backdrop{position:absolute; inset:0; background:rgba(0,0,0,.45); backdrop-filter:blur(4px)}
@@ -109,15 +130,11 @@ body.light .sheet{background:#fff; border-color:rgba(0,0,0,.08)}
 .sheet .handle{width:42px; height:4px; border-radius:3px; background:rgba(255,255,255,.25); margin:8px auto 2px}
 .sheet .header-row{display:flex; align-items:center; justify-content:space-between; padding:6px 12px}
 .sheet .content{padding:6px 12px 12px; max-height:65vh; overflow:auto}
-
 .form-grid{display:grid; grid-template-columns:1fr; gap:8px}
 .input{display:flex; flex-direction:column; gap:4px}
 .input label{font-size:.8rem; opacity:.8}
 .input input,.input textarea,.input select{border-radius:9px; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.05); color:inherit; padding:8px 10px}
 body.light .input input, body.light .input textarea, body.light .input select{background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.1)}
-.input .hint{font-size:.75rem; color:#ff8b8b; display:none}
-.input.invalid .hint{display:block}
-
 .btn{border-radius:10px; border:none; padding:8px 12px; font-weight:700}
 .btn.primary{background:var(--accent); color:#001018}
 .btn.alt{background:rgba(255,255,255,.08); color:inherit; border:1px solid rgba(255,255,255,.12)}
@@ -125,6 +142,7 @@ body.light .input input, body.light .input textarea, body.light .input select{ba
 .divider{height:1px; background:rgba(255,255,255,.08); margin:6px 0}
 .small-muted{font-size:.75rem; opacity:.75}
 
+/* Calculator table (unchanged) */
 .calc-table{display:grid; grid-template-columns:1fr .8fr .8fr 36px; gap:6px; align-items:center}
 .calc-row{display:contents}
 .calc-total{position:sticky; bottom:0; padding:8px 0 6px; background:inherit; display:flex; align-items:center; justify-content:space-between; border-top:1px solid rgba(255,255,255,.1)}
@@ -134,8 +152,10 @@ body.light .input input, body.light .input textarea, body.light .input select{ba
   <header class="header">
     <div class="title">The List</div>
     <div class="actions">
-      <button class="icon-btn" id="themeBtn" title="Theme">🌙</button>
-      <button class="icon-btn" id="calcBtn" title="Calculator">🧮</button>
+      <button class="icon-btn" id="settingsBtn" title="Settings"><span class="only">⚙️</span></button>
+      <button class="icon-btn" id="themeBtn" title="Theme"><span class="only">🌙</span></button>
+      <button class="icon-btn" id="recordsHeaderBtn" title="Recent"><span class="only">🕘</span></button>
+      <button class="icon-btn" id="calcBtn" title="Calculator"><span class="only">🧮</span></button>
     </div>
   </header>
 
@@ -146,19 +166,18 @@ body.light .input input, body.light .input textarea, body.light .input select{ba
 
   <button id="fab" class="fab" title="Add">＋</button>
 
-  <!-- Search bar -->
-  <div id="searchWrap" class="search-wrap bottom" aria-label="Search bar">
+  <!-- Search bar (always bottom) -->
+  <div id="searchWrap" class="search-wrap" aria-label="Search bar">
     <div class="search-inner">
       <div class="search" style="flex:1">
         <span>🔎</span>
         <input id="searchInput" type="text" placeholder="Search prefix in any name…" autocapitalize="none" autocomplete="off" spellcheck="false">
         <button id="clearSearchBtn" class="icon-btn" style="min-width:30px;height:30px">✕</button>
       </div>
-      <button class="records-btn" id="recordsBtn" title="Recent">Records</button>
     </div>
   </div>
 
-  <!-- Item Modal -->
+  <!-- Item Modal (one pencil edits both prices) -->
   <div class="modal" id="itemModal" role="dialog" aria-modal="true">
     <div class="backdrop" data-close="itemModal"></div>
     <div class="sheet">
@@ -170,11 +189,11 @@ body.light .input input, body.light .input textarea, body.light .input select{ba
       <div class="content">
         <form id="itemForm" novalidate>
           <div class="form-grid">
-            <div class="input" id="name1Wrap"><label for="name1">Name 1</label><input id="name1" required maxlength="80"><div class="hint">Required</div></div>
-            <div class="input" id="name2Wrap"><label for="name2">Name 2</label><input id="name2" required maxlength="80"><div class="hint">Required</div></div>
-            <div class="input" id="name3Wrap"><label for="name3">Name 3</label><input id="name3" required maxlength="80"><div class="hint">Required</div></div>
-            <div class="input" id="bpriceWrap"><label for="bprice">Bought ₹/kg</label><input id="bprice" type="number" step="0.01" min="0" inputmode="decimal"><div class="hint">Number ≥ 0</div></div>
-            <div class="input" id="spriceWrap"><label for="sprice">Sell ₹/kg</label><input id="sprice" type="number" step="0.01" min="0" inputmode="decimal"><div class="hint">Number ≥ 0</div></div>
+            <div class="input" id="name1Wrap"><label for="name1">Name 1</label><input id="name1" required maxlength="80"></div>
+            <div class="input" id="name2Wrap"><label for="name2">Name 2</label><input id="name2" required maxlength="80"></div>
+            <div class="input" id="name3Wrap"><label for="name3">Name 3</label><input id="name3" required maxlength="80"></div>
+            <div class="input" id="spriceWrap"><label for="sprice">Selling ₹/kg</label><input id="sprice" type="number" step="0.01" min="0" inputmode="decimal"></div>
+            <div class="input" id="bpriceWrap"><label for="bprice">Bought ₹/kg</label><input id="bprice" type="number" step="0.01" min="0" inputmode="decimal"></div>
           </div>
           <div class="divider"></div>
           <div class="small-muted">Default presets added on create.</div>
@@ -188,7 +207,7 @@ body.light .input input, body.light .input textarea, body.light .input select{ba
     </div>
   </div>
 
-  <!-- Preset Modal -->
+  <!-- Preset Modal (with optional override fields) -->
   <div class="modal" id="presetModal" role="dialog" aria-modal="true">
     <div class="backdrop" data-close="presetModal"></div>
     <div class="sheet">
@@ -199,7 +218,8 @@ body.light .input input, body.light .input textarea, body.light .input select{ba
       </div>
       <div class="content">
         <form id="presetForm" novalidate>
-          <div class="input" id="presetValWrap"><label id="presetValLabel" for="presetVal">Value</label><input id="presetVal" type="number" step="0.01" min="0" inputmode="decimal"><div class="hint">Number ≥ 0</div></div>
+          <div class="input" id="presetValWrap"><label id="presetValLabel" for="presetVal">Value</label><input id="presetVal" type="number" step="0.01" min="0" inputmode="decimal"></div>
+          <div class="input" id="overrideWrap"><label id="overrideLabel" for="overrideVal">Override (optional)</label><input id="overrideVal" type="number" step="0.01" min="0" inputmode="decimal" placeholder="Leave empty for auto"></div>
           <div style="display:flex; gap:6px; justify-content:flex-end; margin-top:8px">
             <button type="button" class="btn alt" data-close="presetModal">Cancel</button>
             <button type="submit" class="btn primary">Save</button>
@@ -228,26 +248,26 @@ body.light .input input, body.light .input textarea, body.light .input select{ba
     </div>
   </div>
 
-  <!-- Recent Searches Modal -->
+  <!-- Recent Searches/Items Modal -->
   <div class="modal" id="recordsModal" role="dialog" aria-modal="true">
     <div class="backdrop" data-close="recordsModal"></div>
     <div class="sheet">
       <div class="handle"></div>
       <div class="header-row">
-        <div class="small-muted">Recent searches</div>
+        <div class="small-muted">Recent</div>
         <button class="small-btn" data-close="recordsModal">✕</button>
       </div>
       <div class="content">
         <div id="recordsList"></div>
         <div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px">
-          <div class="small-muted">Max 15. Tap to use.</div>
+          <div class="small-muted">Tap to search or open item</div>
           <button class="btn alt" id="clearRecordsBtn">Clear all</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Calculator Modal -->
+  <!-- Calculator Modal (multi-item) -->
   <div class="modal" id="calcModal" role="dialog" aria-modal="true">
     <div class="backdrop" data-close="calcModal"></div>
     <div class="sheet">
@@ -268,8 +288,56 @@ body.light .input input, body.light .input textarea, body.light .input select{ba
     </div>
   </div>
 
+  <!-- Quick Convert Modal (per-item) -->
+  <div class="modal" id="convertModal" role="dialog" aria-modal="true">
+    <div class="backdrop" data-close="convertModal"></div>
+    <div class="sheet">
+      <div class="handle"></div>
+      <div class="header-row">
+        <div class="small-muted">Quick convert</div>
+        <button class="small-btn" data-close="convertModal">✕</button>
+      </div>
+      <div class="content">
+        <div class="form-grid">
+          <div class="input"><label for="convGrams">Grams</label><input id="convGrams" type="number" inputmode="decimal" min="0" step="0.01"></div>
+          <div class="input"><label for="convPrice">Price (₹)</label><input id="convPrice" type="number" inputmode="decimal" min="0" step="0.01"></div>
+        </div>
+        <div class="small-muted" id="convInfo" style="margin-top:6px"></div>
+        <div style="display:flex; gap:6px; justify-content:flex-end; margin-top:8px">
+          <button type="button" class="btn alt" data-close="convertModal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal" id="settingsModal" role="dialog" aria-modal="true">
+    <div class="backdrop" data-close="settingsModal"></div>
+    <div class="sheet">
+      <div class="handle"></div>
+      <div class="header-row">
+        <div class="small-muted">Settings</div>
+        <button class="small-btn" data-close="settingsModal">✕</button>
+      </div>
+      <div class="content">
+        <div class="input">
+          <label for="fontScale">Font scale</label>
+          <input id="fontScale" type="range" min="0.85" max="1.15" step="0.01">
+        </div>
+        <div class="input">
+          <label for="accentPick">Accent color</label>
+          <input id="accentPick" type="color">
+        </div>
+        <div style="display:flex; gap:6px; justify-content:flex-end; margin-top:8px">
+          <button type="button" class="btn alt" data-close="settingsModal">Close</button>
+          <button type="button" class="btn primary" id="saveSettingsBtn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <script>
-/* --- Minimal, durable IndexedDB K/V wrapper --- */
+/* IndexedDB K/V */
 const idb = (() => {
   const DB = 'the-list-db', STORE = 'kv';
   let dbp = null;
@@ -284,28 +352,31 @@ const idb = (() => {
   return {get,set};
 })();
 
-/* --- App State --- */
+/* State + defaults */
 const defaultWeightPresets = [{val:"50",label:"50g"},{val:"100",label:"100g"},{val:"500",label:"500g"},{val:"1000",label:"1kg"}];
 const defaultPricePresets  = [{val:"10",label:"₹10"},{val:"30",label:"₹30"},{val:"50",label:"₹50"}];
-
 const state = {
   items: [],
-  recentSearches: [],
-  ui: { theme:'dark', searchActive:false, activeDropdownItemId:null, dropdownType:'weight', editingItemId:null, editingPreset:null },
-  calcRows:[]
+  recentSearches: [],             // strings
+  recentItems: [],                // item ids (dedup, MRU)
+  ui: { theme:'dark', activeDropdownItemId:null, dropdownType:'weight' },
+  calcRows: [],
+  settings: { fontScale: 1, accent: '#59d1ff' }
 };
 
-/* --- Elements --- */
+/* Elements */
 const listEl = document.getElementById('list');
 const emptyEl = document.getElementById('emptyState');
 const themeBtn = document.getElementById('themeBtn');
+const settingsBtn = document.getElementById('settingsBtn');
+const recordsHeaderBtn = document.getElementById('recordsHeaderBtn');
 const calcBtn = document.getElementById('calcBtn');
 const fab = document.getElementById('fab');
 const searchWrap = document.getElementById('searchWrap');
 const searchInput = document.getElementById('searchInput');
 const clearSearchBtn = document.getElementById('clearSearchBtn');
-const recordsBtn = document.getElementById('recordsBtn');
 
+/* Modals / forms */
 const itemModal = document.getElementById('itemModal');
 const itemForm = document.getElementById('itemForm');
 const itemModalTitle = document.getElementById('itemModalTitle');
@@ -320,11 +391,13 @@ const presetModal = document.getElementById('presetModal');
 const presetForm = document.getElementById('presetForm');
 const presetVal = document.getElementById('presetVal');
 const presetValLabel = document.getElementById('presetValLabel');
+const overrideWrap = document.getElementById('overrideWrap');
+const overrideLabel = document.getElementById('overrideLabel');
+const overrideVal = document.getElementById('overrideVal');
 const presetModalTitle = document.getElementById('presetModalTitle');
 
 const notesModal = document.getElementById('notesModal');
 const notesText = document.getElementById('notesText');
-const saveNotesBtn = document.getElementById('saveNotesBtn');
 
 const recordsModal = document.getElementById('recordsModal');
 const recordsList = document.getElementById('recordsList');
@@ -335,54 +408,98 @@ const calcTable = document.getElementById('calcTable');
 const addCalcRowBtn = document.getElementById('addCalcRowBtn');
 const calcTotalEl = document.getElementById('calcTotal');
 
-/* --- Helpers --- */
+const convertModal = document.getElementById('convertModal');
+const convGrams = document.getElementById('convGrams');
+const convPrice = document.getElementById('convPrice');
+const convInfo = document.getElementById('convInfo');
+
+const settingsModal = document.getElementById('settingsModal');
+const fontScale = document.getElementById('fontScale');
+const accentPick = document.getElementById('accentPick');
+
+/* Helpers */
 const byId = id => state.items.find(i=>i.id===id);
 const genId = () => Math.random().toString(36).slice(2)+Date.now().toString(36);
 const formatPrice = n => `₹${(Number(n)||0).toFixed(2)}`;
 const formatGrams = g => `${(Number(g)||0).toFixed(1)}g`;
 const escapeHtml = s => String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-/* --- Persistence --- */
+/* Persistence */
 async function loadAll(){
-  const [items,recent,theme] = await Promise.all([idb.get('items'), idb.get('recent'), idb.get('theme')]);
+  const [items,recent,recentItems,theme,settings] = await Promise.all([
+    idb.get('items'), idb.get('recent'), idb.get('recentItems'), idb.get('theme'), idb.get('settings')
+  ]);
   state.items = Array.isArray(items)? items : [];
   state.recentSearches = Array.isArray(recent)? recent : [];
+  state.recentItems = Array.isArray(recentItems)? recentItems : [];
   if(theme==='light'||theme==='dark') state.ui.theme = theme;
-  applyTheme(); renderList(); renderRecords();
+  if(settings) state.settings = Object.assign(state.settings, settings);
+  applyTheme(); applySettings(); renderList(); renderRecords();
 }
-async function saveItems(){ await idb.set('items', state.items); }
-async function saveRecent(){ await idb.set('recent', state.recentSearches); }
-async function saveTheme(){ await idb.set('theme', state.ui.theme); }
+const saveItems = () => idb.set('items', state.items);
+const saveRecent = () => idb.set('recent', state.recentSearches);
+const saveRecentItems = () => idb.set('recentItems', state.recentItems);
+const saveTheme = () => idb.set('theme', state.ui.theme);
+const saveSettings = () => idb.set('settings', state.settings);
 
-/* --- Theme --- */
+/* Theme + Settings */
 function applyTheme(){
   document.body.classList.toggle('light', state.ui.theme==='light');
   document.body.classList.toggle('dark', state.ui.theme==='dark');
-  themeBtn.textContent = state.ui.theme==='light' ? '☀️' : '🌙';
+  themeBtn.querySelector('.only').textContent = state.ui.theme==='light' ? '☀️' : '🌙';
 }
 themeBtn.addEventListener('click', ()=>{ state.ui.theme = state.ui.theme==='dark'?'light':'dark'; applyTheme(); saveTheme(); });
 
-/* --- Search --- */
-function setSearchBarTop(active){
-  state.ui.searchActive = !!active;
-  searchWrap.classList.toggle('top', !!active);
-  searchWrap.classList.toggle('bottom', !active);
+function applySettings(){
+  document.documentElement.style.setProperty('--font-scale', state.settings.fontScale);
+  document.documentElement.style.setProperty('--accent', state.settings.accent);
 }
-function getQuery(){ return searchInput.value.trim().toLowerCase(); }
-searchInput.addEventListener('focus', ()=>setSearchBarTop(true));
-searchInput.addEventListener('blur', ()=>{ if(!getQuery()) setSearchBarTop(false); });
-searchInput.addEventListener('input', ()=>{ const q=getQuery(); if(q){ state.recentSearches = [q, ...state.recentSearches.filter(x=>x!==q)].slice(0,15); saveRecent(); }
-  renderList(); setSearchBarTop(true); });
-clearSearchBtn.addEventListener('click', ()=>{ searchInput.value=''; setSearchBarTop(false); renderList(); searchInput.focus(); });
-recordsBtn.addEventListener('click', ()=> openModal('recordsModal'));
+settingsBtn.addEventListener('click', ()=>{
+  fontScale.value = state.settings.fontScale;
+  accentPick.value = state.settings.accent;
+  openModal('settingsModal');
+});
+document.getElementById('saveSettingsBtn').addEventListener('click', ()=>{
+  state.settings.fontScale = +fontScale.value || 1;
+  state.settings.accent = accentPick.value || '#59d1ff';
+  applySettings(); saveSettings(); closeModal('settingsModal');
+});
 
-/* --- Modals --- */
+/* Bottom bar + FAB: lift above keyboard (VisualViewport / VirtualKeyboard) */
+(function setupKeyboardLift(){
+  function setKb(px){ document.documentElement.style.setProperty('--kb', Math.max(0, px)+'px'); }
+  if ('virtualKeyboard' in navigator) {
+    try {
+      navigator.virtualKeyboard.overlaysContent = true;
+      navigator.virtualKeyboard.addEventListener('geometrychange', (e)=> setKb(e.target.boundingRect.height||0) );
+    } catch(e){}
+  }
+  if (window.visualViewport){
+    const vv = window.visualViewport;
+    const onVv = ()=> setKb( Math.max(0, (window.innerHeight - (vv.height||window.innerHeight))) );
+    vv.addEventListener('resize', onVv);
+    vv.addEventListener('scroll', onVv);
+  }
+})();
+
+/* Modals */
 function openModal(id){ const el=document.getElementById(id); if(el) el.classList.add('open'); }
 function closeModal(id){ const el=document.getElementById(id); if(el) el.classList.remove('open'); }
 document.addEventListener('click', e=>{ const c=e.target.getAttribute('data-close'); if(c) closeModal(c); if(e.target.classList.contains('backdrop')){ const id=e.target.getAttribute('data-close'); if(id) closeModal(id);} });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ const open=[...document.querySelectorAll('.modal.open')]; if(open.length) open.at(-1).classList.remove('open'); }});
 
-/* --- Items --- */
+/* Search (always bottom) with contains-match and recent item logging */
+function getQuery(){ return (searchInput.value||'').trim().toLowerCase(); }
+searchInput.addEventListener('input', ()=>{
+  const q=getQuery(); if(q){ state.recentSearches=[q, ...state.recentSearches.filter(x=>x!==q)].slice(0,15); saveRecent(); }
+  renderList();
+});
+clearSearchBtn.addEventListener('click', ()=>{ searchInput.value=''; renderList(); searchInput.focus(); });
+
+/* Records icon in header */
+document.getElementById('recordsHeaderBtn').addEventListener('click', ()=> openModal('recordsModal'));
+
+/* Add item (FAB) */
 fab.addEventListener('click', startAddItem);
 function startAddItem(){
   state.ui.editingItemId = null; itemModalTitle.textContent='Add item'; deleteItemBtn.style.display='none';
@@ -395,7 +512,7 @@ function startEditItem(id){
   name1.value=it.name1; name2.value=it.name2; name3.value=it.name3; bprice.value=it.bprice; sprice.value=it.sprice;
   openModal('itemModal');
 }
-function validateItem(){ const ok = name1.value.trim()&&name2.value.trim()&&name3.value.trim() && parseFloat(bprice.value)>=0 && parseFloat(sprice.value)>=0; return !!ok; }
+function validateItem(){ return name1.value.trim()&&name2.value.trim()&&name3.value.trim() && parseFloat(bprice.value)>=0 && parseFloat(sprice.value)>=0; }
 itemForm.addEventListener('submit', async (e)=>{
   e.preventDefault(); if(!validateItem()) return alert('Please fill all fields correctly.');
   const payload = { name1:name1.value.trim(), name2:name2.value.trim(), name3:name3.value.trim(), bprice:+(+bprice.value||0).toFixed(2), sprice:+(+sprice.value||0).toFixed(2) };
@@ -420,47 +537,75 @@ let editingNotesItemId=null;
 function startEditNotes(id){ const it=byId(id); if(!it) return; editingNotesItemId=id; document.getElementById('notesText').value=it.notes||''; openModal('notesModal');}
 document.getElementById('saveNotesBtn').addEventListener('click', async ()=>{ const it=byId(editingNotesItemId); if(it){ it.notes = document.getElementById('notesText').value; await saveItems(); } closeModal('notesModal'); });
 
-/* Presets */
+/* Presets with manual override support */
 function startEditPreset({itemId,type,presetIndex}){
   const it=byId(itemId); if(!it) return;
   state.ui.editingPreset={itemId,type,presetIndex};
   presetModalTitle.textContent = (presetIndex===-1?'Add ':'Edit ') + (type==='weight'?'weight':'price') + ' preset';
-  presetVal.value = presetIndex===-1? '' : it.presets[type][presetIndex]?.val ?? '';
-  presetValLabel.textContent = type==='weight'?'Grams (g)':'Price (₹)'; openModal('presetModal'); setTimeout(()=>presetVal.focus(),50);
+  const p = presetIndex===-1? null : it.presets[type][presetIndex];
+  presetVal.value = p?.val ?? '';
+  if(type==='weight'){ presetValLabel.textContent='Grams (g)'; overrideLabel.textContent='Override price ₹ (optional)'; }
+  else { presetValLabel.textContent='Price (₹)'; overrideLabel.textContent='Override grams (optional)'; }
+  overrideVal.value = (type==='weight'? p?.overridePrice : p?.overrideGrams) ?? '';
+  openModal('presetModal'); setTimeout(()=>presetVal.focus(),50);
 }
 presetForm.addEventListener('submit', async (e)=>{
   e.preventDefault(); const ep=state.ui.editingPreset; if(!ep) return;
   const v=parseFloat(presetVal.value); if(isNaN(v)||v<0) return alert('Enter a valid number ≥ 0.');
+  const ov = parseFloat(overrideVal.value);
   const it=byId(ep.itemId); if(!it) return;
-  if(ep.type==='weight'){ const lab = v===1000?'1kg':`${v}g`; const obj={val:String(v),label:lab}; if(ep.presetIndex===-1) it.presets.weight.push(obj); else it.presets.weight[ep.presetIndex]=obj; }
-  else{ const obj={val:String(v),label:`₹${v}`}; if(ep.presetIndex===-1) it.presets.price.push(obj); else it.presets.price[ep.presetIndex]=obj; }
+  if(ep.type==='weight'){
+    const obj={ val:String(v), label: v===1000?'1kg':`${v}g` };
+    if(!isNaN(ov)) obj.overridePrice = +ov;
+    if(ep.presetIndex===-1) it.presets.weight.push(obj); else it.presets.weight[ep.presetIndex]=obj;
+  } else {
+    const obj={ val:String(v), label:`₹${v}` };
+    if(!isNaN(ov)) obj.overrideGrams = +ov;
+    if(ep.presetIndex===-1) it.presets.price.push(obj); else it.presets.price[ep.presetIndex]=obj;
+  }
   await saveItems(); closeModal('presetModal'); state.ui.editingPreset=null; renderList();
 });
 
-/* Long-press delete preset */
+/* Long press delete preset */
 function attachLongPress(el,onLong){
   let t=null; el.addEventListener('pointerdown', e=>{ if(e.button!==0) return; t=setTimeout(()=>onLong(e),520); });
   ['pointerup','pointerleave','pointercancel'].forEach(ev=> el.addEventListener(ev, ()=>{ if(t){clearTimeout(t); t=null;} }));
   el.addEventListener('contextmenu', e=>{ e.preventDefault(); onLong(e); });
 }
 
-/* Records */
+/* Records render (recent searches + recent items) */
 function renderRecords(){
-  recordsList.innerHTML=''; if(!state.recentSearches.length){ recordsList.innerHTML='<div class="small-muted" style="text-align:center;padding:10px 0">No recent</div>'; return; }
-  const frag=document.createDocumentFragment();
-  state.recentSearches.forEach(s=>{
+  recordsList.innerHTML='';
+  const s = state.recentSearches.map(q=>({type:'search',label:q}));
+  const its = state.recentItems.map(id=>{ const it=byId(id); return it? {type:'item', id, label:`${it.name1} / ${it.name2} / ${it.name3}`} : null; }).filter(Boolean);
+  const rows = [...its, ...s]; // show items first, then searches
+  if(!rows.length){ recordsList.innerHTML='<div class="small-muted" style="text-align:center;padding:10px 0">No recent</div>'; return; }
+  rows.forEach(r=>{
     const row=document.createElement('div');
     row.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08)';
-    row.innerHTML=`<div>${escapeHtml(s)}</div><div style="display:flex;gap:6px"><button class="small-btn" data-record="${s}">Use</button><button class="small-btn" data-delrecord="${s}">✕</button></div>`;
-    frag.appendChild(row);
-  }); recordsList.appendChild(frag);
+    if(r.type==='item'){
+      row.innerHTML=`<div>${escapeHtml(r.label)}</div><div style="display:flex;gap:6px"><button class="small-btn" data-openitem="${r.id}">Open</button><button class="small-btn" data-delitemrec="${r.id}">✕</button></div>`;
+    } else {
+      row.innerHTML=`<div>${escapeHtml(r.label)}</div><div style="display:flex;gap:6px"><button class="small-btn" data-record="${r.label}">Use</button><button class="small-btn" data-delrecord="${r.label}">✕</button></div>`;
+    }
+    recordsList.appendChild(row);
+  });
 }
 recordsModal.addEventListener('click', async e=>{
-  const use=e.target.getAttribute('data-record'); const del=e.target.getAttribute('data-delrecord');
-  if(use){ searchInput.value=use; renderList(); setSearchBarTop(true); closeModal('recordsModal'); searchInput.focus(); }
+  const use=e.target.getAttribute('data-record');
+  const del=e.target.getAttribute('data-delrecord');
+  const openItem=e.target.getAttribute('data-openitem');
+  const delItem=e.target.getAttribute('data-delitemrec');
+  if(use){ searchInput.value=use; renderList(); closeModal('recordsModal'); searchInput.focus(); }
   if(del){ state.recentSearches=state.recentSearches.filter(x=>x!==del); await saveRecent(); renderRecords(); }
+  if(openItem){ state.ui.activeDropdownItemId=openItem; bumpRecentItem(openItem); renderList(); closeModal('recordsModal'); }
+  if(delItem){ state.recentItems=state.recentItems.filter(x=>x!==delItem); await saveRecentItems(); renderRecords(); }
 });
-document.getElementById('clearRecordsBtn').addEventListener('click', async ()=>{ if(state.recentSearches.length && confirm('Clear all recent searches?')){ state.recentSearches=[]; await saveRecent(); renderRecords(); }});
+document.getElementById('clearRecordsBtn').addEventListener('click', async ()=>{ if(state.recentSearches.length||state.recentItems.length){ if(confirm('Clear all recent?')){ state.recentSearches=[]; state.recentItems=[]; await saveRecent(); await saveRecentItems(); renderRecords(); }}});
+function bumpRecentItem(id){
+  state.recentItems = [id, ...state.recentItems.filter(x=>x!==id)].slice(0,15);
+  saveRecentItems();
+}
 
 /* Calculator */
 function addCalcRow(init){ const row={id:genId(), itemId:state.items?.id||null, weight:0, price:0, ...(init||{})}; state.calcRows.push(row); renderCalc(); }
@@ -486,43 +631,94 @@ calcTable.addEventListener('input', e=>{
   const id=e.target.getAttribute('data-id'); const key=e.target.getAttribute('data-calcs'); const row=state.calcRows.find(r=>r.id===id); if(!row) return;
   if(key==='item') row.itemId=e.target.value; if(key==='weight') row.weight=parseFloat(e.target.value)||0; if(key==='price') row.price=parseFloat(e.target.value)||0; updateCalcTotal();
 });
-calcTable.addEventListener('click', e=>{ const id=e.target.getAttribute('data-id'); const key=e.target.getAttribute('data-calcs'); if(key==='del'){ state.calcRows = state.calcRows.filter(r=>r.id!==id); renderCalc(); }});
 calcBtn.addEventListener('click', ()=>{ if(!state.calcRows.length) addCalcRow(); openModal('calcModal'); });
 
-/* List render */
-function priceFromWeightPreset(item, gramsStr){ const grams=Number(gramsStr)||0; const sp=Number(item.sprice)||0; const amount=sp*(grams/1000); return isFinite(amount)? formatPrice(amount) : '—'; }
-function gramsFromPricePreset(item, priceStr){ const pr=Number(priceStr)||0; const sp=Number(item.sprice)||0; if(sp<=0) return '—'; return formatGrams(pr/sp*1000); }
+/* Quick convert (per-item) */
+let convertItemId=null;
+function openConvert(itemId){
+  convertItemId=itemId; const it=byId(itemId); if(!it) return;
+  convGrams.value=''; convPrice.value=''; convInfo.textContent=`@ ${formatPrice(it.sprice)}/kg`;
+  openModal('convertModal');
+}
+function syncConvert(from){
+  const it = byId(convertItemId); if(!it) return;
+  const sp = Number(it.sprice)||0;
+  if(from==='g'){
+    const g = Number(convGrams.value)||0; convPrice.value = sp>0? (sp*(g/1000)).toFixed(2) : '';
+  } else {
+    const p = Number(convPrice.value)||0; convGrams.value = sp>0? (p/sp*1000).toFixed(1) : '';
+  }
+}
+convGrams.addEventListener('input', ()=>syncConvert('g'));
+convPrice.addEventListener('input', ()=>syncConvert('p'));
+
+/* Price helpers for presets (with overrides) */
+function priceFromWeightPreset(item, gramsStr, overridePrice) {
+  if (typeof overridePrice === 'number') return formatPrice(overridePrice);
+  const grams = Number(gramsStr) || 0;
+  const sp = Number(item.sprice) || 0;
+  const amount = sp * (grams / 1000);
+  return isFinite(amount) ? formatPrice(amount) : '—';
+}
+function gramsFromPricePreset(item, priceStr, overrideGrams) {
+  if (typeof overrideGrams === 'number') return formatGrams(overrideGrams);
+  const pr = Number(priceStr) || 0;
+  const sp = Number(item.sprice) || 0;
+  if (sp <= 0) return '—';
+  const grams = pr / sp * 1000;
+  return formatGrams(grams);
+}
+
+/* Render list (contains-match + interaction logging) */
 function renderList(){
-  const q=(searchInput.value||'').trim().toLowerCase();
-  const items = !q ? state.items : state.items.filter(it => (it.name1||'').toLowerCase().startsWith(q) || (it.name2||'').toLowerCase().startsWith(q) || (it.name3||'').toLowerCase().startsWith(q));
+  const q=getQuery();
+  const items = !q ? state.items : state.items.filter(it => {
+    const n1=(it.name1||'').toLowerCase(), n2=(it.name2||'').toLowerCase(), n3=(it.name3||'').toLowerCase();
+    return n1.includes(q) || n2.includes(q) || n3.includes(q);
+  });
+
   listEl.innerHTML=''; emptyEl.style.display = items.length? 'none' : (state.items.length? 'none':'block');
+
   const frag=document.createDocumentFragment();
   items.forEach(it=>{
     const card=document.createElement('div'); card.className='card';
+
+    /* Row 1: names + notes + single edit (handled in meta row to avoid duplicates) */
     const titleRow=document.createElement('div'); titleRow.className='card-row';
     titleRow.innerHTML = `<div class="names">${escapeHtml(it.name1)} <span class="sep">/</span> ${escapeHtml(it.name2)} <span class="sep">/</span> ${escapeHtml(it.name3)}</div>
       <div class="row-icons">
-        <button class="small-btn" title="Edit" data-edit-item="${it.id}">✏️</button>
         <button class="small-btn" title="Notes" data-notes="${it.id}">📝</button>
       </div>`;
     card.appendChild(titleRow);
+
+    /* Row 2: meta (Sell left, Bought right, one pencil edits both) */
     const meta=document.createElement('div'); meta.className='meta';
-    meta.innerHTML = `<div class="editable">Bought ${formatPrice(it.bprice)}/kg <button class="small-btn" data-edit-item="${it.id}">✏️</button></div>
-      <div class="editable">Sell ${formatPrice(it.sprice)}/kg <button class="small-btn" data-edit-item="${it.id}">✏️</button></div>`;
+    meta.innerHTML = `
+      <div class="sell">${formatPrice(it.sprice)}/kg</div>
+      <div class="buy">${formatPrice(it.bprice)}/kg</div>
+      <div class="one-edit"><button class="small-btn" title="Edit prices & names" data-edit-item="${it.id}">✏️</button></div>
+    `;
     card.appendChild(meta);
 
+    /* Dropdown */
     const isActive = state.ui.activeDropdownItemId===it.id;
     if(isActive){
       const dropdown=document.createElement('div'); dropdown.className='dropdown';
       const type=state.ui.dropdownType; const presets=it.presets[type]||[];
       const bar=document.createElement('div'); bar.className='bar';
       const toggle=document.createElement('button'); toggle.className='toggle-type'; toggle.setAttribute('data-toggle-type', it.id);
-      toggle.textContent = type==='weight' ? '⚖️ Weight' : '💰 Price'; bar.appendChild(toggle);
+      toggle.innerHTML = `<span class="only">${type==='weight'?'⚖️':'💰'}</span>`;
+      bar.appendChild(toggle);
+
+      /* Quick Convert button inside dropdown */
+      const quick=document.createElement('button'); quick.className='small-btn'; quick.title='Quick convert'; quick.textContent='🧮'; quick.setAttribute('data-quick', it.id);
+      bar.appendChild(quick);
+
       const row=document.createElement('div'); row.className='preset-row';
       presets.forEach((p,i)=>{
         const btn=document.createElement('button'); btn.className='preset'; btn.type='button';
         btn.setAttribute('data-preset-item',it.id); btn.setAttribute('data-preset-type',type); btn.setAttribute('data-preset-index',String(i));
-        const bottom = type==='weight' ? priceFromWeightPreset(it,p.val) : gramsFromPricePreset(it,p.val);
+        const bottom = type==='weight' ? priceFromWeightPreset(it,p.val,p.overridePrice) : gramsFromPricePreset(it,p.val,p.overrideGrams);
         btn.innerHTML = `<div class="top">${escapeHtml(p.label)}</div><div class="bottom">${bottom}</div><button class="edit" data-edit-preset="${it.id}" data-type="${type}" data-index="${i}">✏️</button>`;
         attachLongPress(btn, async ()=>{ if(confirm('Delete this preset?')){ if(type==='weight') it.presets.weight.splice(i,1); else it.presets.price.splice(i,1); await saveItems(); renderList(); }});
         row.appendChild(btn);
@@ -530,16 +726,20 @@ function renderList(){
       const add=document.createElement('button'); add.className='preset add'; add.type='button'; add.setAttribute('data-add-preset', it.id); add.setAttribute('data-type', type); add.textContent='+';
       row.appendChild(add);
       bar.appendChild(row);
+
       const close=document.createElement('button'); close.className='small-btn'; close.setAttribute('data-close-dropdown', it.id); close.textContent='✕';
       bar.appendChild(close);
 
       dropdown.appendChild(bar); card.appendChild(dropdown);
     }
 
-    card.addEventListener('click', e=>{
+    /* Card tap: open/close dropdown + log MRU item */
+    card.addEventListener('click', (e)=>{
       const isAction = e.target.closest('.small-btn') || e.target.closest('.preset') || e.target.closest('.toggle-type');
       if(isAction) return;
-      state.ui.activeDropdownItemId = isActive ? null : it.id; renderList();
+      state.ui.activeDropdownItemId = isActive ? null : it.id;
+      if(!isActive){ bumpRecentItem(it.id); }
+      renderList();
     });
 
     frag.appendChild(card);
@@ -548,19 +748,18 @@ function renderList(){
 }
 
 /* Delegated actions */
-listEl.addEventListener('click', e=>{
-  const edit=e.target.getAttribute('data-edit-item'); if(edit){ startEditItem(edit); return; }
-  const notes=e.target.getAttribute('data-notes'); if(notes){ startEditNotes(notes); return; }
+listEl.addEventListener('click', async e=>{
+  const edit=e.target.getAttribute('data-edit-item'); if(edit){ startEditItem(edit); bumpRecentItem(edit); return; }
+  const notes=e.target.getAttribute('data-notes'); if(notes){ startEditNotes(notes); bumpRecentItem(notes); return; }
   const toggleFor=e.target.getAttribute('data-toggle-type'); if(toggleFor){ state.ui.dropdownType = state.ui.dropdownType==='weight'?'price':'weight'; renderList(); return; }
   const closeId=e.target.getAttribute('data-close-dropdown'); if(closeId){ state.ui.activeDropdownItemId=null; renderList(); return; }
+  const quickId=e.target.getAttribute('data-quick'); if(quickId){ openConvert(quickId); return; }
   const addItem=e.target.getAttribute('data-add-preset'); const addType=e.target.getAttribute('data-type'); if(addItem&&addType){ startEditPreset({itemId:addItem,type:addType,presetIndex:-1}); return; }
   const editPresetItem=e.target.getAttribute('data-edit-preset'); if(editPresetItem){ const t=e.target.getAttribute('data-type'); const idx=parseInt(e.target.getAttribute('data-index'),10); startEditPreset({itemId:editPresetItem,type:t,presetIndex:idx}); return; }
 });
 
 /* Service worker register */
-if('serviceWorker' in navigator){
-  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
-}
+if('serviceWorker' in navigator){ window.addEventListener('load', ()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }); }
 
 /* Start */
 loadAll();
